@@ -1,0 +1,52 @@
+// COMP3016 CW1.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+#include <SDL3/SDL.h>
+
+
+int main(int argc, char* argv[])
+{
+    //SDL_Init(SDL_INIT_EVERYTHING);
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+		return 1;
+	}
+	//SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN);
+	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", 600, 400, SDL_WINDOW_RESIZABLE);
+	if (!window) {
+		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		return 1;
+	}
+	//SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
+	if (!renderer) {
+		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		return 1;
+	}
+
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_RenderClear(renderer);
+	SDL_RenderPresent(renderer);
+	SDL_Delay(3000);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+
+    std::cout << "Hello World!\n";
+	return 0;
+}
+
+// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
+// Debug program: F5 or Debug > Start Debugging menu
+
+// Tips for Getting Started: 
+//   1. Use the Solution Explorer window to add/manage files
+//   2. Use the Team Explorer window to connect to source control
+//   3. Use the Output window to see build output and other messages
+//   4. Use the Error List window to view errors
+//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
+//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
