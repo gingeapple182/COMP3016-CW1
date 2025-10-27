@@ -7,16 +7,21 @@
 
 int main(int argc, char* argv[])
 {
+	// Initialize SDL
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		return 1;
 	}
-	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", 600, 400, SDL_WINDOW_RESIZABLE);
+
+	// Create window and renderer
+	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", 1000, 750, SDL_WINDOW_RESIZABLE);
 	if (!window) {
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
 		return 1;
 	}
+
+	// Create renderer
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
 	if (!renderer) {
 		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
@@ -25,6 +30,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	// Game loop variables
 	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f };
 	const float playerSpeed = 5.0f;
 	uint64_t lastTicks = SDL_GetTicksNS();
@@ -35,19 +41,24 @@ int main(int argc, char* argv[])
 	//SDL_RenderPresent(renderer);
 	//SDL_Delay(3000);
 
+
+	// Game loop
 	bool moving = true;
 	SDL_Event event;
 
 	const bool* key = SDL_GetKeyboardState(nullptr);
 	while (moving) {
 		while (SDL_PollEvent(&event)) {
+			// Close window event
 			if (event.type == SDL_EVENT_QUIT) {
 				moving = false;
 			}
 		}
 		
+		// Handle keyboard input
 		SDL_PumpEvents();
 		key = SDL_GetKeyboardState(nullptr);
+		// Update player position
 		uint64_t now = SDL_GetTicksNS();
 		float dt = (now - lastTicks) / 1000.0f;
 		lastTicks = now;
@@ -65,23 +76,25 @@ int main(int argc, char* argv[])
 			playerF.x += playerSpeed;
 		}
 
+		// Render background
 		SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
 		SDL_RenderClear(renderer);
-
+		// Render player
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderFillRect(renderer, &playerF);
+		
 		SDL_RenderPresent(renderer);
 
 		SDL_Delay(16); // ~60 FPS
 	}
 
 	
-
+	// Cleanup
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
-    std::cout << "Hello World!\n";
+    std::cout << "Game closed\n";
 	return 0;
 }
 
