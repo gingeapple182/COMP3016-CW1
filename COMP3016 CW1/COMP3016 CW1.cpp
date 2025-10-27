@@ -14,7 +14,10 @@ int main(int argc, char* argv[])
 	}
 
 	// Create window and renderer
-	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", 1000, 750, SDL_WINDOW_RESIZABLE);
+	int windowWidth = 1000;
+	int	windowHeight = 750;
+
+	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
 	if (!window) {
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
@@ -31,15 +34,19 @@ int main(int argc, char* argv[])
 	}
 
 	// Game loop variables
-	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f };
+	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f }; 
 	const float playerSpeed = 5.0f;
+	playerF.x = (windowWidth - playerF.w) / 2.0f;
+	playerF.y = (windowHeight - playerF.h) / 2.0f;
+
 	uint64_t lastTicks = SDL_GetTicksNS();
 	int tileSize = 50;
 
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	//SDL_RenderClear(renderer);
-	//SDL_RenderPresent(renderer);
-	//SDL_Delay(3000);
+	const int mapWidth = 2000;
+	const int mapHeight = 2000;
+
+	float cameraX = 0.0f;
+	float cameraY = 0.0f;
 
 
 	// Game loop
@@ -76,12 +83,37 @@ int main(int argc, char* argv[])
 			playerF.x += playerSpeed;
 		}
 
+		// Clamp player position to map bounds
+		if (playerF.x < 0) playerF.x = 0;
+		if (playerF.y < 0) playerF.y = 0;
+		if (playerF.x > mapWidth - playerF.w) playerF.x = mapWidth - playerF.w;
+		if (playerF.y > mapHeight - playerF.h) playerF.y = mapHeight - playerF.h;
+
+		//center camera on player
+		cameraX = playerF.x + playerF.w / 2 - (windowWidth / 2);
+		cameraY = playerF.y + playerF.h / 2 - (windowHeight / 2);
+
+		if (cameraX < 0) cameraX = 0;
+		if (cameraY < 0) cameraY = 0;
+		if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
+		if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
+
 		// Render background
-		SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
-		// Render player
+		// Draw grid
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-		SDL_RenderFillRect(renderer, &playerF);
+		for (int y = 0; y <= mapHeight; y += tileSize) {
+			for (int x = 0; x <= mapWidth; x += tileSize) {
+				SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
+				SDL_RenderRect(renderer, &tileRect);
+			}
+		}
+
+		// Render player
+		SDL_SetRenderDrawColor(renderer, 241, 90, 34, 255);
+		SDL_FRect adjustedPlayerF = { playerF.x - cameraX, playerF.y - cameraY, playerF.w, playerF.h };
+		SDL_RenderFillRect(renderer, &adjustedPlayerF);
 		
 		SDL_RenderPresent(renderer);
 
@@ -100,11 +132,3 @@ int main(int argc, char* argv[])
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
