@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Game loop variables
-	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f }; 
+	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f };
 	const float playerSpeed = 5.0f;
 	playerF.x = (windowWidth - playerF.w) / 2.0f;
 	playerF.y = (windowHeight - playerF.h) / 2.0f;
@@ -48,12 +48,14 @@ int main(int argc, char* argv[])
 	float cameraX = 0.0f;
 	float cameraY = 0.0f;
 
+	float mouseX, mouseY;
 
 	// Game loop
 	bool moving = true;
 	SDL_Event event;
 
 	const bool* key = SDL_GetKeyboardState(nullptr);
+
 	while (moving) {
 		while (SDL_PollEvent(&event)) {
 			// Close window event
@@ -61,15 +63,16 @@ int main(int argc, char* argv[])
 				moving = false;
 			}
 		}
-		
+
 		// Handle keyboard input
 		SDL_PumpEvents();
 		key = SDL_GetKeyboardState(nullptr);
+
 		// Update player position
 		uint64_t now = SDL_GetTicksNS();
 		float dt = (now - lastTicks) / 1000.0f;
 		lastTicks = now;
-		
+
 		if (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_UP]) {
 			playerF.y -= playerSpeed;
 		}
@@ -92,17 +95,15 @@ int main(int argc, char* argv[])
 		//center camera on player
 		cameraX = playerF.x + playerF.w / 2 - (windowWidth / 2);
 		cameraY = playerF.y + playerF.h / 2 - (windowHeight / 2);
-
 		if (cameraX < 0) cameraX = 0;
 		if (cameraY < 0) cameraY = 0;
 		if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
 		if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
 
-		// Render background
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		// Render background grid
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
 		SDL_RenderClear(renderer);
-		// Draw grid
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green grid lines
 		for (int y = 0; y <= mapHeight; y += tileSize) {
 			for (int x = 0; x <= mapWidth; x += tileSize) {
 				SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
@@ -110,23 +111,68 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		// Render player
-		SDL_SetRenderDrawColor(renderer, 241, 90, 34, 255);
+		// Render player as rotated rectangle facing the mouse
 		SDL_FRect adjustedPlayerF = { playerF.x - cameraX, playerF.y - cameraY, playerF.w, playerF.h };
-		SDL_RenderFillRect(renderer, &adjustedPlayerF);
-		
+
+		// Center of player
+		float cx = adjustedPlayerF.x + adjustedPlayerF.w / 2;
+		float cy = adjustedPlayerF.y + adjustedPlayerF.h / 2;
+
+		// Get mouse position
+		SDL_GetMouseState(&mouseX, &mouseY);
+		float dx = mouseX - cx;
+		float dy = mouseY - cy;
+
+		// Compute angle to mouse
+		float angle = SDL_atan2f(dy, dx);
+
+		// Define rectangle corners relative to center
+		SDL_FPoint corners[4] = {
+			{ -adjustedPlayerF.w / 2, -adjustedPlayerF.h / 2 },
+			{  adjustedPlayerF.w / 2, -adjustedPlayerF.h / 2 },
+			{  adjustedPlayerF.w / 2,  adjustedPlayerF.h / 2 },
+			{ -adjustedPlayerF.w / 2,  adjustedPlayerF.h / 2 }
+		};
+
+		// Rotate corners around center
+		SDL_FPoint rotated[4];
+		float cosA = cosf(angle);
+		float sinA = sinf(angle);
+		for (int i = 0; i < 4; ++i) {
+			rotated[i].x = cx + corners[i].x * cosA - corners[i].y * sinA;
+			rotated[i].y = cy + corners[i].x * sinA + corners[i].y * cosA;
+		}
+
+		// Fill vertices for SDL_RenderGeometry
+		SDL_Color playerColorF = { 241, 90, 34, 255 };
+		SDL_Vertex verts[4];
+		for (int i = 0; i < 4; ++i) {
+			verts[i].position = rotated[i];
+			verts[i].color.r = 241.0f;
+			verts[i].color.g = 90.0f;
+			verts[i].color.b = 34.0f;
+			verts[i].color.a = 255.0f;
+			verts[i].tex_coord = { 0.0f, 0.0f };
+		}
+
+		// Render the rotated rectangle
+		int indices[6] = { 0, 1, 2, 2, 3, 0 };
+		SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
+
+
+
 		SDL_RenderPresent(renderer);
 
 		SDL_Delay(16); // ~60 FPS
 	}
 
-	
+
 	// Cleanup
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
-    std::cout << "Game closed\n";
+	std::cout << "Game closed\n";
 	return 0;
 }
 
