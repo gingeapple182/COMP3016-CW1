@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <SDL3/SDL.h>
+#include "Player.h"
 
 
 int main(int argc, char* argv[])
@@ -33,28 +34,28 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	// Game loop variables
-	SDL_FRect playerF = { 50.0f, 50.0f, 50.0f, 50.0f };
-	const float playerSpeed = 5.0f;
-	playerF.x = (windowWidth - playerF.w) / 2.0f;
-	playerF.y = (windowHeight - playerF.h) / 2.0f;
-
+	//// Game loop variables
 	uint64_t lastTicks = SDL_GetTicksNS();
 	int tileSize = 50;
 
+
+	// Map dimensions
 	const int mapWidth = 2000;
 	const int mapHeight = 2000;
 
+	// Camera position
 	float cameraX = 0.0f;
 	float cameraY = 0.0f;
 
-	float mouseX, mouseY;
+	// Create player
+	const float pw = 50.0f, ph = 50.0f;
+	float startX = (mapWidth - pw) / 2.0f;
+	float startY = (mapHeight - ph) / 2.0f;
+	Player player(startX, startY, pw, ph, 5.0f);
 
 	// Game loop
 	bool moving = true;
 	SDL_Event event;
-
-	const bool* key = SDL_GetKeyboardState(nullptr);
 
 	while (moving) {
 		while (SDL_PollEvent(&event)) {
@@ -66,35 +67,19 @@ int main(int argc, char* argv[])
 
 		// Handle keyboard input
 		SDL_PumpEvents();
-		key = SDL_GetKeyboardState(nullptr);
 
 		// Update player position
 		uint64_t now = SDL_GetTicksNS();
 		float dt = (now - lastTicks) / 1000.0f;
 		lastTicks = now;
+		(void)dt;
 
-		if (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_UP]) {
-			playerF.y -= playerSpeed;
-		}
-		if (key[SDL_SCANCODE_S] || key[SDL_SCANCODE_DOWN]) {
-			playerF.y += playerSpeed;
-		}
-		if (key[SDL_SCANCODE_A] || key[SDL_SCANCODE_LEFT]) {
-			playerF.x -= playerSpeed;
-		}
-		if (key[SDL_SCANCODE_D] || key[SDL_SCANCODE_RIGHT]) {
-			playerF.x += playerSpeed;
-		}
-
-		// Clamp player position to map bounds
-		if (playerF.x < 0) playerF.x = 0;
-		if (playerF.y < 0) playerF.y = 0;
-		if (playerF.x > mapWidth - playerF.w) playerF.x = mapWidth - playerF.w;
-		if (playerF.y > mapHeight - playerF.h) playerF.y = mapHeight - playerF.h;
+		player.update(mapWidth, mapHeight);
 
 		//center camera on player
-		cameraX = playerF.x + playerF.w / 2 - (windowWidth / 2);
-		cameraY = playerF.y + playerF.h / 2 - (windowHeight / 2);
+		SDL_FPoint playerCentre = player.centreWorld();
+		cameraX = playerCentre.x - windowWidth / 2.0f;
+		cameraY = playerCentre.y - windowHeight / 2.0f;
 		if (cameraX < 0) cameraX = 0;
 		if (cameraY < 0) cameraY = 0;
 		if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
@@ -111,55 +96,8 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		// Render player as rotated rectangle facing the mouse
-		SDL_FRect adjustedPlayerF = { playerF.x - cameraX, playerF.y - cameraY, playerF.w, playerF.h };
-
-		// Center of player
-		float cx = adjustedPlayerF.x + adjustedPlayerF.w / 2;
-		float cy = adjustedPlayerF.y + adjustedPlayerF.h / 2;
-
-		// Get mouse position
-		SDL_GetMouseState(&mouseX, &mouseY);
-		float dx = mouseX - cx;
-		float dy = mouseY - cy;
-
-		// Compute angle to mouse
-		float angle = SDL_atan2f(dy, dx);
-
-		// Define rectangle corners relative to center
-		SDL_FPoint corners[4] = {
-			{ -adjustedPlayerF.w / 2, -adjustedPlayerF.h / 2 },
-			{  adjustedPlayerF.w / 2, -adjustedPlayerF.h / 2 },
-			{  adjustedPlayerF.w / 2,  adjustedPlayerF.h / 2 },
-			{ -adjustedPlayerF.w / 2,  adjustedPlayerF.h / 2 }
-		};
-
-		// Rotate corners around center
-		SDL_FPoint rotated[4];
-		float cosA = cosf(angle);
-		float sinA = sinf(angle);
-		for (int i = 0; i < 4; ++i) {
-			rotated[i].x = cx + corners[i].x * cosA - corners[i].y * sinA;
-			rotated[i].y = cy + corners[i].x * sinA + corners[i].y * cosA;
-		}
-
-		// Fill vertices for SDL_RenderGeometry
-		SDL_Color playerColorF = { 241, 90, 34, 255 };
-		SDL_Vertex verts[4];
-		for (int i = 0; i < 4; ++i) {
-			verts[i].position = rotated[i];
-			verts[i].color.r = 241.0f;
-			verts[i].color.g = 90.0f;
-			verts[i].color.b = 34.0f;
-			verts[i].color.a = 255.0f;
-			verts[i].tex_coord = { 0.0f, 0.0f };
-		}
-
-		// Render the rotated rectangle
-		int indices[6] = { 0, 1, 2, 2, 3, 0 };
-		SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
-
-
+		//// Render player
+		player.render(renderer, cameraX, cameraY);
 
 		SDL_RenderPresent(renderer);
 
