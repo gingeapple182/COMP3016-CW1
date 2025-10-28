@@ -17,9 +17,16 @@ public:
 	float w() const { return rect.w; }
 	float h() const { return rect.h; }
 
+	SDL_FPoint facingVector() const;
+	float angleRad = 0.0f;
+
 private:
 	SDL_FRect rect;
 	float speed;
 	float angle = 0.0f; // Facing right initially
 	SDL_Color colour = { 241, 90, 34, 255 };
+
+	// Bullet pool for the player
+	BulletPool bulletPool{ 500 }; 
+	float shootCooldown = 0.2f; // 0.2 seconds between shots
 };

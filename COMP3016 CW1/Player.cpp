@@ -1,4 +1,8 @@
 #include "Player.h"
+#include "BulletPool.h"
+#include <SDL3/SDL.h>
+#include <cmath>
+
 
 Player::Player(float x, float y, float w, float h, float speedPerFrame)
 	: speed(speedPerFrame)
@@ -33,6 +37,24 @@ void Player::update(int mapWidth, int mapHeight)
 	if (rect.y < 0) rect.y = 0;
 	if (rect.x > mapWidth - rect.w) rect.x = mapWidth - rect.w;
 	if (rect.y > mapHeight - rect.h) rect.y = mapHeight - rect.h;
+
+	// Shooting stuff
+	if (shootCooldown > 0.0f) {
+		shootCooldown -= 1.0f / 60.0f; 
+	}
+
+	if (key[SDL_SCANCODE_SPACE] && shootCooldown <= 0.0f) {
+		SDL_FPoint center = centreWorld();
+		SDL_FPoint dir = facingVector();
+		
+		Bullet* bullet = bulletPool.getBullet();
+		if (bullet) {
+			bullet->init(center.x, center.y, dir.x, dir.y, 600.0f);
+		}
+
+		shootCooldown = 0.2f;
+	}
+	bulletPool.updateAll(1.0f / 60.0f);
 }
 
 void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
@@ -50,13 +72,14 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	float dx = mouseX - centerX;
 	float dy = mouseY - centerY;
 	float angle = SDL_atan2f(dy, dx);
+	angleRad = angle;
 
 	// Define the four corners of the rectangle
 	SDL_FPoint corners[4] = {
 		{ -adjust.w / 2, -adjust.h / 2 },
 		{  adjust.w / 2, -adjust.h / 2 },
 		{  adjust.w / 2,  adjust.h / 2 },
-		{ -adjust.w / 2,  adjust.h / 2}
+		{ -adjust.w / 2,  adjust.h / 2 }
 	};
 
 	// Rotate corners around the center
@@ -82,10 +105,20 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	// Define indices for two triangles
 	int indices[6] = { 0, 1, 2, 2, 3, 0 };
 	SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
+
+	// Render bullets
+	bulletPool.renderAll(renderer, cameraX, cameraY);
 }
 
 SDL_FPoint Player::centreWorld() const
 {
 	// Return the center point of the player in world coordinates
 	return { rect.x + rect.w / 2.0f, rect.y + rect.h / 2.0f };
+}
+
+SDL_FPoint Player::facingVector() const
+{
+	float x = std::cosf(angleRad);
+	float y = std::sinf(angleRad);
+	return { x, y };
 }
