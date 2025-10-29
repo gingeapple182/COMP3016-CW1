@@ -9,6 +9,8 @@ public:
 	void updateAll(float deltaTime);
 	void renderAll(SDL_Renderer* renderer, float cameraX, float cameraY);
 
+	std::vector<Bullet>& getBullets() { return bullets; }
+
 private:
 	std::vector<Bullet> bullets;
 };

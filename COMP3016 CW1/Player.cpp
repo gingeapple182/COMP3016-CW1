@@ -1,3 +1,5 @@
+// Player.cpp : this file handles the player stuff
+
 #include "Player.h"
 #include "BulletPool.h"
 #include <SDL3/SDL.h>
@@ -7,30 +9,22 @@
 Player::Player(float x, float y, float w, float h, float speedPerFrame)
 	: speed(speedPerFrame)
 { 
-	// Initialize player rectangle
+	// Initialize player rectangle -- will be replaced with a sprite 
 	rect.x = x;
 	rect.y = y;
 	rect.w = w;
 	rect.h = h;
 }
 
-void Player::update(int mapWidth, int mapHeight)
+void Player::update(int mapWidth, int mapHeight, float deltaTime)
 {
 	// Handle keyboard input
 	const bool* key = SDL_GetKeyboardState(nullptr);
 
-	if (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_UP]) {
-		rect.y -= speed;
-	}
-	if (key[SDL_SCANCODE_S] || key[SDL_SCANCODE_DOWN]) {
-		rect.y += speed;
-	}
-	if (key[SDL_SCANCODE_A] || key[SDL_SCANCODE_LEFT]) {
-		rect.x -= speed;
-	}
-	if (key[SDL_SCANCODE_D] || key[SDL_SCANCODE_RIGHT]) {
-		rect.x += speed;
-	}
+	if (key[SDL_SCANCODE_W] || key[SDL_SCANCODE_UP]) { rect.y -= speed; }
+	if (key[SDL_SCANCODE_S] || key[SDL_SCANCODE_DOWN]) { rect.y += speed; }
+	if (key[SDL_SCANCODE_A] || key[SDL_SCANCODE_LEFT]) { rect.x -= speed; }
+	if (key[SDL_SCANCODE_D] || key[SDL_SCANCODE_RIGHT]) { rect.x += speed; }
 
 	// Constrain player to map bounds
 	if (rect.x < 0) rect.x = 0;
@@ -38,11 +32,11 @@ void Player::update(int mapWidth, int mapHeight)
 	if (rect.x > mapWidth - rect.w) rect.x = mapWidth - rect.w;
 	if (rect.y > mapHeight - rect.h) rect.y = mapHeight - rect.h;
 
-	// Shooting stuff
-	if (shootCooldown > 0.0f) {
-		shootCooldown -= 1.0f / 60.0f; 
-	}
+	// -- Shooting stuff --
+	// Update shoot cooldown
+	if (shootCooldown > 0.0f) { shootCooldown -= 1.0f / 60.0f; }
 
+	// Fire bullet with spacebar
 	if (key[SDL_SCANCODE_SPACE] && shootCooldown <= 0.0f) {
 		SDL_FPoint center = centreWorld();
 		SDL_FPoint dir = facingVector();
@@ -59,9 +53,13 @@ void Player::update(int mapWidth, int mapHeight)
 
 void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
+	// Render bullets before player
+	bulletPool.renderAll(renderer, cameraX, cameraY);
+
 	// Adjust position based on camera
 	SDL_FRect adjust = { rect.x - cameraX, rect.y - cameraY, rect.w, rect.h };
 
+	// Player center
 	float centerX = adjust.x + adjust.w / 2.0f;
 	float centerY = adjust.y + adjust.h / 2.0f;
 
@@ -105,9 +103,6 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	// Define indices for two triangles
 	int indices[6] = { 0, 1, 2, 2, 3, 0 };
 	SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
-
-	// Render bullets
-	bulletPool.renderAll(renderer, cameraX, cameraY);
 }
 
 SDL_FPoint Player::centreWorld() const
@@ -118,6 +113,7 @@ SDL_FPoint Player::centreWorld() const
 
 SDL_FPoint Player::facingVector() const
 {
+	// Calculate facing direction based on angleRad
 	float x = std::cosf(angleRad);
 	float y = std::sinf(angleRad);
 	return { x, y };

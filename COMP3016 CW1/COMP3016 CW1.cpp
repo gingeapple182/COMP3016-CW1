@@ -2,8 +2,12 @@
 //
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <SDL3/SDL.h>
 #include "Player.h"
+#include "BulletPool.h"
+#include "EnemyPool.h"
 
 
 int main(int argc, char* argv[])
@@ -37,7 +41,10 @@ int main(int argc, char* argv[])
 	//// Game loop variables
 	uint64_t lastTicks = SDL_GetTicksNS();
 	int tileSize = 50;
-
+	srand(static_cast<unsigned int>(time(nullptr)));
+	int totalEnemies = 10;
+	EnemyPool enemyPool(totalEnemies);
+	int score = 0;
 
 	// Map dimensions
 	const int mapWidth = 2000;
@@ -47,13 +54,32 @@ int main(int argc, char* argv[])
 	float cameraX = 0.0f;
 	float cameraY = 0.0f;
 
-	// Create player
+	// Create player in the center of the map
 	const float pw = 50.0f, ph = 50.0f;
 	float startX = (mapWidth - pw) / 2.0f;
 	float startY = (mapHeight - ph) / 2.0f;
 	Player player(startX, startY, pw, ph, 5.0f);
 
-	// Game loop
+
+	// Enemy spawning
+	// Spawn enemies at random positions away from the player start area
+	for (int i = 0; i < totalEnemies; ++i) {
+		Enemy* enemy = enemyPool.getEnemy();
+		if (enemy) {
+			float enemyX, enemyY;
+			do {
+				enemyX = static_cast<float>(rand() % (mapWidth - 50));
+				enemyY = static_cast<float>(rand() % (mapHeight - 50));
+			} while (
+				enemyX > startX - 100 && enemyX < startX + 100 &&
+				enemyY > startY - 100 && enemyY < startY + 100
+			);
+			enemy->init(enemyX, enemyY, 0.0f);
+		}
+	}
+
+
+	// -- Game loop --
 	bool moving = true;
 	SDL_Event event;
 
@@ -68,13 +94,21 @@ int main(int argc, char* argv[])
 		// Handle keyboard input
 		SDL_PumpEvents();
 
-		// Update player position
+		// Calculate delta time
 		uint64_t now = SDL_GetTicksNS();
 		float dt = (now - lastTicks) / 1000.0f;
 		lastTicks = now;
-		(void)dt;
 
-		player.update(mapWidth, mapHeight);
+		// -- Update game state --
+		player.update(mapWidth, mapHeight, dt);
+		enemyPool.updateAll(dt); 
+
+		// bullet collision with enemies
+		int killed = enemyPool.handleEnemyDeath(player.getBulletPool());
+		if (killed > 0) {
+			score += killed;
+			std::cout << "Score: " << score << "\n";
+		}
 
 		//center camera on player
 		SDL_FPoint playerCentre = player.centreWorld();
@@ -85,7 +119,7 @@ int main(int argc, char* argv[])
 		if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
 		if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
 
-		// Render background grid
+		// Rendering
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
 		SDL_RenderClear(renderer);
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green grid lines
@@ -95,10 +129,12 @@ int main(int argc, char* argv[])
 				SDL_RenderRect(renderer, &tileRect);
 			}
 		}
-
-		//// Render player
+		
+		// Render enemies and player
+		enemyPool.renderAll(renderer, cameraX, cameraY);
 		player.render(renderer, cameraX, cameraY);
 
+		// Draw everything to the screen
 		SDL_RenderPresent(renderer);
 
 		SDL_Delay(16); // ~60 FPS

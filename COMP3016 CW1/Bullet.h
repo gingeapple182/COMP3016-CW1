@@ -11,6 +11,8 @@ public:
 
 	bool isActive() const { return active; }
 
+	const SDL_FRect& getRect() const { return rect; }
+
 private:
 	float x, y;
 	float dx, dy;

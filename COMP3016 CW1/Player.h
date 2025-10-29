@@ -6,7 +6,7 @@ class Player {
 public:
 	Player(float x, float y, float w, float h, float speedPerFrame);
 
-	void update(int mapWidth, int mapHeight);
+	void update(int mapWidth, int mapHeight, float deltaTime);
 
 	void render(SDL_Renderer* renderer, float cameraX, float cameraY);
 
@@ -19,6 +19,14 @@ public:
 
 	SDL_FPoint facingVector() const;
 	float angleRad = 0.0f;
+
+	BulletPool& getBulletPool() { return bulletPool; }
+	void updateBullets(float deltaTime, int mapWidth, int mapHeight) {
+		bulletPool.updateAll(deltaTime); 
+	}
+	void renderBullets(SDL_Renderer* renderer, float cameraX, float cameraY) {
+		bulletPool.renderAll(renderer, cameraX, cameraY);
+	}
 
 private:
 	SDL_FRect rect;

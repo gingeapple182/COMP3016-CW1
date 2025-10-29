@@ -9,18 +9,21 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 
 
 - [x] Make player
+	- DONE: Implement a controllable player entity (movement, rect)
 	- Description: Implement a controllable player entity (movement, simple sprite/rect, collision box).
 
 - [ ] Map design (high level)
 	- Description: Decide map layout, tile size, spawn points for survivors/enemies, and play area bounds.
 
-- [ ] Make map (implementation)
+- [x] Make map (implementation)
+	- DONE: Implement tile grid - Constrain player to map boundaries
 	- Description: Implement tile grid / map loading (hardcoded or from a simple CSV/txt). Render tiles and a basic collision layer.
 
-- [ ] Clamp camera / camera follow
-	- Description: Implement a camera that follows the player and clamps to the map bounds so the camera doesn't show empty space.
+- [x] Clamp camera / camera follow
+	- DONE: Implemented camera that clamps to player
+	- Description: Implement a camera that follows the player
 
-- [ ] Player shooting
+- [x] Player shooting
 	- Description: Add ability for the player to shoot bullets/projectiles. Include a simple bullet struct and spawn logic.
 
 - [ ] Make survivors (game objects)
@@ -31,6 +34,14 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 
 - [ ] Basic enemy AI
 	- Description: Implement a simple enemy that moves toward the player or along a patrol route.
+	Stage	Feature				Description
+	1		Basic spawn			2 enemies, random off-screen
+	2		Movement			Enemies seek player (simple direction vector)
+	3		Attack				Collision when close to player
+	4		Death				Bullets deactivate enemies
+	5		Pooling				Reuse enemies for performance (like bullets)
+	6		Round controller	Manage waves, timers, scaling enemy count
+	7		Enemy types			Different AI / movement patterns
 
 - [ ] Enemy attack
 	- Description: Add attack behavior for enemies (melee hit, projectile, or both). Include damage application to player.

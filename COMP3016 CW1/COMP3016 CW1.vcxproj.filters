@@ -54,6 +54,9 @@
     <ClCompile Include="Survivor.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyPool.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -72,6 +75,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Survivor.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyPool.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
