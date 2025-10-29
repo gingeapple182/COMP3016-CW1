@@ -87,3 +87,14 @@ bool EnemyPool::checkPlayerCollision(Player& player) {
 	}
 	return collisionDetected;
 }
+
+int EnemyPool::getActiveCount() const
+{
+	int count = 0;
+	for (const auto& enemy : enemies) {
+		if (enemy.isActive()) {
+			count++;
+		}
+	}
+	return count;
+}

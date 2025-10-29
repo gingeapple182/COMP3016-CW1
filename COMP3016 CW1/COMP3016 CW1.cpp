@@ -4,7 +4,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include "Player.h"
 #include "BulletPool.h"
 #include "EnemyPool.h"
@@ -17,6 +19,20 @@ int main(int argc, char* argv[])
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		return 1;
 	}
+
+	// Initialize TTF
+	if (!TTF_Init()) {
+		std::cerr << "TTF_Init Error: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		return 1;
+	}
+
+	TTF_Font* font = TTF_OpenFont("Pixellari.ttf", 24); // Load a font file
+	if (!font) {
+		std::cerr << "TTF_OpenFont Error: " << SDL_GetError() << std::endl;
+		// handle error …
+	}
+
 
 	// Create window and renderer
 	int windowWidth = 1000;
@@ -39,14 +55,17 @@ int main(int argc, char* argv[])
 	}
 
 	//// Game loop variables
-	//uint64_t lastTicks = SDL_GetTicksNS();
+	// Calculate delta time
 	uint64_t now = SDL_GetTicksNS();
-	float dt = float(now) / 1000000000.0f;
+	float dt = float(now) / 1000000000.0f; // 9 '0's
 	uint64_t lastTicks = now;
+	// Tile size for grid
 	int tileSize = 50;
+	// Seed random number generator
 	srand(static_cast<unsigned int>(time(nullptr)));
 	int totalEnemies = 10;
 	EnemyPool enemyPool(totalEnemies);
+	int round = 1;
 	int score = 0;
 
 	// Map dimensions
@@ -85,7 +104,7 @@ int main(int argc, char* argv[])
 
 
 
-	// -- Game loop --
+	//// -- Game loop --
 	bool moving = true;
 	SDL_Event event;
 
@@ -102,7 +121,7 @@ int main(int argc, char* argv[])
 
 		// Calculate delta time
 		uint64_t now = SDL_GetTicksNS();
-		float dt = float(now) / 100000000000.0f;
+		float dt = float(now) / 100000000000.0f; // 10 '0's
 		uint64_t lastTicks = now;
 
 		// -- Update game state --
@@ -147,6 +166,96 @@ int main(int argc, char* argv[])
 		enemyPool.renderAll(renderer, cameraX, cameraY);
 		player.render(renderer, cameraX, cameraY);
 
+		//// -- HUD --
+		SDL_Color white = { 255, 255, 255, 255 };
+
+		// ROUND -- top left
+		{
+			std::string roundText = "ROUND: " + std::to_string(round);
+
+			// Create the actual text surface
+			SDL_Surface* surface = TTF_RenderText_Solid(font, roundText.c_str(), roundText.length(), white);
+			if (!surface) {
+				std::cerr << "TTF_RenderText_Solid Error: " << SDL_GetError() << std::endl;
+			}
+			else {
+				// Create texture from surface
+				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+				// Render the texture to the screen
+				SDL_FRect dstRect = { 10.0f, 10.0f, (float)surface->w, (float)surface->h }; // Top-left corner
+				SDL_RenderTexture(renderer, texture, nullptr, &dstRect); // Show on screen
+
+				SDL_DestroyTexture(texture);
+				SDL_DestroySurface(surface);
+			}
+		}
+		// Enemies remaining -- top left below ROUND
+		{
+			std::string enemiesText = "Enemies remaining: " + std::to_string(enemyPool.getActiveCount());
+
+			// Create the actual text surface
+			SDL_Surface* surface = TTF_RenderText_Solid(font, enemiesText.c_str(), enemiesText.length(), white);
+			if (!surface) {
+				std::cerr << "TTF_RenderText_Solid Error: " << SDL_GetError() << std::endl;
+			}
+			else {
+				// Create texture from surface
+				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+				// Render the texture to the screen
+				SDL_FRect dstRect = { 10.0f, 10.0f + 30.0f, (float)surface->w, (float)surface->h }; // Below ROUND
+				SDL_RenderTexture(renderer, texture, nullptr, &dstRect); // Show on screen
+
+				SDL_DestroyTexture(texture);
+				SDL_DestroySurface(surface);
+			}
+		}
+
+		// SCORE -- top right
+		{
+			std::string scoreText = "SCORE: " + std::to_string(score);
+
+			// Create the actual text surface
+			SDL_Surface* surface = TTF_RenderText_Solid(font, scoreText.c_str(), scoreText.length(), white);
+			if (!surface) {
+				std::cerr << "TTF_RenderText_Solid Error: " << SDL_GetError() << std::endl;
+			}
+			else {
+				// Create texture from surface
+				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+				// Render the texture to the screen
+				SDL_FRect dstRect = { (float)(windowWidth - surface->w - 10), 10.0f, (float)surface->w, (float)surface->h }; // Top-right corner
+				SDL_RenderTexture(renderer, texture, nullptr, &dstRect); // Show on screen
+
+				SDL_DestroyTexture(texture);
+				SDL_DestroySurface(surface);
+			}
+		}
+
+		// HEALTH -- bottom left
+		{
+			std::string healthText = "HEALTH: " + std::to_string(player.getHealth());
+
+			// Create the actual text surface
+			SDL_Surface* surface = TTF_RenderText_Solid(font, healthText.c_str(), healthText.length(), white);
+			if (!surface) {
+				std::cerr << "TTF_RenderText_Solid Error: " << SDL_GetError() << std::endl;
+			}
+			else {
+				// Create texture from surface
+				SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+				// Render the texture to the screen
+				SDL_FRect dstRect = { 10.0f, (float)(windowHeight - surface->h - 10), (float)surface->w, (float)surface->h }; // Bottom-left corner
+				SDL_RenderTexture(renderer, texture, nullptr, &dstRect); // Show on screen
+
+				SDL_DestroyTexture(texture);
+				SDL_DestroySurface(surface);
+			}
+		}
+
 		// Draw everything to the screen
 		SDL_RenderPresent(renderer);
 
@@ -154,9 +263,11 @@ int main(int argc, char* argv[])
 	}
 
 
-	// Cleanup
+	//// Cleanup
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	TTF_CloseFont(font);
+	TTF_Quit(); 
 	SDL_Quit();
 
 	std::cout << "Game closed\n";

@@ -11,6 +11,7 @@ public:
 	void renderAll(SDL_Renderer* renderer, float cameraX, float cameraY);
 	bool checkPlayerCollision(Player& player);
 	int handleEnemyDeath(BulletPool& bulletPool);
+	int getActiveCount() const;
 
 private:
 	std::vector<Enemy> enemies;

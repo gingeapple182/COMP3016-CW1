@@ -72,17 +72,17 @@ void Enemy::applyTypeAttributes()
 {
 	switch (type) {
 	case EnemyType::Runner:
-		if (speed <= 0) speed = 1.0f;
+		if (speed <= 0) speed = 10.0f;
 		if (damage <= 0) damage = 2;
 		colour = { 0, 255, 0, 255 }; // green
 		break;
 	case EnemyType::Shooter:
-		if (speed <= 0) speed = 1.0f;
+		if (speed <= 0) speed = 10.0f;
 		if (damage <= 0) damage = 1;
 		colour = { 255, 0, 0, 255 }; // red
 		break;
 	case EnemyType::Sniper:
-		if (speed <= 0) speed = 1.0f;
+		if (speed <= 0) speed = 10.0f;
 		if (damage <= 0) damage = 2;
 		colour = { 0, 0, 255, 255 }; // blue
 		break;
