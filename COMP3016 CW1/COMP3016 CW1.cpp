@@ -101,10 +101,6 @@ int main(int argc, char* argv[])
 		SDL_PumpEvents();
 
 		// Calculate delta time
-		//uint64_t now = SDL_GetTicksNS();
-		//float dt = (now - lastTicks) / 1000.0f;
-		//lastTicks = now;
-
 		uint64_t now = SDL_GetTicksNS();
 		float dt = float(now) / 100000000000.0f;
 		uint64_t lastTicks = now;

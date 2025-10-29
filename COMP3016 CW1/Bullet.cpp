@@ -30,7 +30,7 @@ void Bullet::update(float deltaTime)
 	rect.x = x - rect.w / 2;
 	rect.y = y - rect.h / 2;
 
-	// Deactivate when out of bounds
+	// Deactivate when out of bounds -- ensure map dimensions match actual map!!
 	if (x < 0 || x > 2000 || y < 0 || y > 2000) {
 		std::cout << "Bullet deactivated for leaving bounds at ("
 			<< x << ", " << y << ")\n";
