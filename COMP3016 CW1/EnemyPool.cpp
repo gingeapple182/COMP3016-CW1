@@ -19,11 +19,11 @@ Enemy* EnemyPool::getEnemy() // Get an inactive enemy from the pool
 	return nullptr; // No available enemy
 }
 
-void EnemyPool::updateAll(float deltaTime)
+void EnemyPool::updateAll(float deltaTime, const SDL_FPoint& playerPosition)
 {
 	for (auto& enemy : enemies) {
 		if (enemy.isActive()) {
-			enemy.update(deltaTime);
+			enemy.update(deltaTime, playerPosition);
 		}
 	}
 }

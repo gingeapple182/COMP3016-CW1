@@ -39,7 +39,10 @@ int main(int argc, char* argv[])
 	}
 
 	//// Game loop variables
-	uint64_t lastTicks = SDL_GetTicksNS();
+	//uint64_t lastTicks = SDL_GetTicksNS();
+	uint64_t now = SDL_GetTicksNS();
+	float dt = float(now) / 1000000000.0f;
+	uint64_t lastTicks = now;
 	int tileSize = 50;
 	srand(static_cast<unsigned int>(time(nullptr)));
 	int totalEnemies = 10;
@@ -62,21 +65,24 @@ int main(int argc, char* argv[])
 
 
 	// Enemy spawning
-	// Spawn enemies at random positions away from the player start area
+	const float minSpawnDistance = 400.0f;  // Safe distance away from player
+
 	for (int i = 0; i < totalEnemies; ++i) {
 		Enemy* enemy = enemyPool.getEnemy();
 		if (enemy) {
-			float enemyX, enemyY;
+			float enemyX, enemyY, dx, dy, distance;
 			do {
 				enemyX = static_cast<float>(rand() % (mapWidth - 50));
 				enemyY = static_cast<float>(rand() % (mapHeight - 50));
-			} while (
-				enemyX > startX - 100 && enemyX < startX + 100 &&
-				enemyY > startY - 100 && enemyY < startY + 100
-			);
-			enemy->init(enemyX, enemyY, 0.0f, 1);
+				dx = enemyX - startX;
+				dy = enemyY - startY;
+				distance = std::sqrt(dx * dx + dy * dy);
+			} while (distance < minSpawnDistance); // Keep trying until far enough
+
+			enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Runner);
 		}
 	}
+
 
 
 	// -- Game loop --
@@ -95,13 +101,17 @@ int main(int argc, char* argv[])
 		SDL_PumpEvents();
 
 		// Calculate delta time
+		//uint64_t now = SDL_GetTicksNS();
+		//float dt = (now - lastTicks) / 1000.0f;
+		//lastTicks = now;
+
 		uint64_t now = SDL_GetTicksNS();
-		float dt = (now - lastTicks) / 1000.0f;
-		lastTicks = now;
+		float dt = float(now) / 100000000000.0f;
+		uint64_t lastTicks = now;
 
 		// -- Update game state --
 		player.update(mapWidth, mapHeight, dt);
-		enemyPool.updateAll(dt); 
+		enemyPool.updateAll(dt, player.centreWorld()); 
 		enemyPool.checkPlayerCollision(player);
 
 		// If player dies, so does the game :(

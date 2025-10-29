@@ -29,7 +29,7 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 - [ ] Make survivors (game objects)
 	- Description: Implement survivor entities that can be rescued. Define spawn, simple AI (idle) and interaction with the player.
 
-- [ ] Make health system
+- [x] Make health system
 	- Description: Implement player health, damage, healing from rescued survivors, and simple UI display (health bar or number).
 
 - [ ] Basic enemy AI
@@ -49,7 +49,7 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 - [ ] Survivor/enemy interactions / balancing
 	- Description: Tune how survivors affect difficulty (extra party members), enemy spawn rates, and damage values.
 
-- [ ] Scoring system
+- [x] Scoring system
 	- Description: Track score for rescued survivors, defeated enemies, time survived, etc. Show score on-screen and persist high score locally.
 
 - [ ] Alternate enemy AI (patterns)

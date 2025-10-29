@@ -7,7 +7,7 @@ class EnemyPool {
 public:
 	EnemyPool(size_t poolSize);
 	Enemy* getEnemy();
-	void updateAll(float deltaTime);
+	void updateAll(float deltaTime, const SDL_FPoint& playerPosition);
 	void renderAll(SDL_Renderer* renderer, float cameraX, float cameraY);
 	bool checkPlayerCollision(Player& player);
 	int handleEnemyDeath(BulletPool& bulletPool);
