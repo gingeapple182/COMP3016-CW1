@@ -19,7 +19,14 @@ public:
 
 	SDL_FPoint facingVector() const;
 	float angleRad = 0.0f;
+	const SDL_FRect& getRect() const { return rect; }
 
+	// Player health
+	int getHealth() const { return health; }
+	bool isAlive() const { return health > 0; }
+	void takeDamage(int damage);
+
+	// Access to bullet pool
 	BulletPool& getBulletPool() { return bulletPool; }
 	void updateBullets(float deltaTime, int mapWidth, int mapHeight) {
 		bulletPool.updateAll(deltaTime); 
@@ -33,6 +40,8 @@ private:
 	float speed;
 	float angle = 0.0f; // Facing right initially
 	SDL_Color colour = { 241, 90, 34, 255 };
+
+	int health = 5;
 
 	// Bullet pool for the player
 	BulletPool bulletPool{ 500 }; 

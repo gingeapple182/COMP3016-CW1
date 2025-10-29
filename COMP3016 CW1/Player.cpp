@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "BulletPool.h"
 #include <SDL3/SDL.h>
+#include <iostream>
 #include <cmath>
 
 
@@ -117,4 +118,12 @@ SDL_FPoint Player::facingVector() const
 	float x = std::cosf(angleRad);
 	float y = std::sinf(angleRad);
 	return { x, y };
+}
+
+void Player::takeDamage(int damage)
+{
+	health -= damage;
+	if (health < 0) health = 0;
+	
+	std::cout << "Player took " << damage << " damage. Health: " << health << "\n";
 }

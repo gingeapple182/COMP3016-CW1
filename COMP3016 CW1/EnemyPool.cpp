@@ -1,3 +1,4 @@
+#include "Player.h"
 #include "EnemyPool.h"
 #include "BulletPool.h"
 #include <SDL3/SDL.h>
@@ -64,4 +65,25 @@ int EnemyPool::handleEnemyDeath(BulletPool& bulletPool)
 	}
 	// Return the number of destroyed enemies
 	return destroyedEnemies;
+}
+
+bool EnemyPool::checkPlayerCollision(Player& player) {
+	bool collisionDetected = false;
+
+	for (auto& enemy : enemies) {
+
+		// Skip inactive enemies
+		if (!enemy.isActive()) continue;
+
+		// Axis-aligned bounding box (AABB) collision detection
+		if (SDL_HasRectIntersectionFloat(&enemy.getRect(), &player.getRect())) {
+			std::cout << "Player hit!" << std::endl;
+			// Inflict damage to player
+			player.takeDamage(enemy.getDamage());
+			// Deactivate enemy
+			enemy.deactivate();
+			collisionDetected = true;
+		}
+	}
+	return collisionDetected;
 }

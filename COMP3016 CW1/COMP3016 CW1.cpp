@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 				enemyX > startX - 100 && enemyX < startX + 100 &&
 				enemyY > startY - 100 && enemyY < startY + 100
 			);
-			enemy->init(enemyX, enemyY, 0.0f);
+			enemy->init(enemyX, enemyY, 0.0f, 1);
 		}
 	}
 
@@ -102,6 +102,13 @@ int main(int argc, char* argv[])
 		// -- Update game state --
 		player.update(mapWidth, mapHeight, dt);
 		enemyPool.updateAll(dt); 
+		enemyPool.checkPlayerCollision(player);
+
+		// If player dies, so does the game :(
+		if (!player.isAlive()) {
+			std::cout << "You died! Final Score: " << score << "\n";
+			moving = false;
+		}
 
 		// bullet collision with enemies
 		int killed = enemyPool.handleEnemyDeath(player.getBulletPool());

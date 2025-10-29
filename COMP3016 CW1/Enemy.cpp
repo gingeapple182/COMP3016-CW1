@@ -7,11 +7,12 @@ Enemy::Enemy()
 	rect = { 0, 0, 32, 32 }; // Enemy size 32x32
 }
 
-void Enemy::init(float startX, float startY, float enemySpeed)
+void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage)
 {
 	x = startX;
 	y = startY;
 	speed = enemySpeed;
+	damage = enemyDamage;
 	active = true;
 
 	rect.x = x - rect.w / 2;
