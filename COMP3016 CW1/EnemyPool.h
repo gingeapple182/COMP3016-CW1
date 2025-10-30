@@ -3,6 +3,8 @@
 #include "Enemy.h"
 #include "BulletPool.h"
 
+class Player; // Forward declaration
+
 class EnemyPool {
 public:
 	EnemyPool(size_t poolSize);
