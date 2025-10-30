@@ -1,2 +1,16 @@
+// HUD.h
 #pragma once
-// I will fill this out soon but i wanna focus time on other functionality before neatness
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+
+class EnemyPool;
+class Player;
+
+void DrawHUD(SDL_Renderer* renderer,
+    TTF_Font* font,
+    int round,
+    int score,
+    const EnemyPool& enemyPool,
+    const Player& player,
+    int windowWidth,
+    int windowHeight);

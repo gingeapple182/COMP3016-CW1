@@ -2,218 +2,97 @@
 //
 
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <string>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include "Player.h"
-#include "BulletPool.h"
-#include "EnemyPool.h"
-#include "SurvivorPool.h"
-#include "HUD.h"
-
-void DrawHUD(SDL_Renderer* renderer, TTF_Font* font, int round, int score,
-	const EnemyPool& enemyPool, const Player& player,
-	int windowWidth, int windowHeight);
+#include "Game.h"
 
 int main(int argc, char* argv[])
 {
-	// Initialize SDL
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
-		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		return 1;
-	}
+	// SDL initialisation
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-	// Initialize TTF
-	if (!TTF_Init()) {
-		std::cerr << "TTF_Init Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
+    if (!TTF_Init()) {
+        std::cerr << "TTF_Init Error: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
+    }
 
-	TTF_Font* font = TTF_OpenFont("Pixellari.ttf", 30); // Load a font file
-	if (!font) {
-		std::cerr << "TTF_OpenFont Error: " << SDL_GetError() << std::endl;
-		// handle error …
-	}
+	// Window creation
+    int windowWidth = 1000;
+    int windowHeight = 750;
 
+    SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
 
-	// Create window and renderer
-	int windowWidth = 1000;
-	int	windowHeight = 750;
+	// Renderer creation
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
+    if (!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        SDL_DestroyWindow(window);
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
 
-	SDL_Window* window = SDL_CreateWindow("COMP3016 CW1", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
-	if (!window) {
-		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
+	// load font
 
-	// Create renderer
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
-	if (!renderer) {
-		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
+    TTF_Font* font = TTF_OpenFont("Pixellari.ttf", 30);
+    if (!font) {
+        std::cerr << "TTF_OpenFont Error: " << SDL_GetError() << std::endl;
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
 
-	//// Game loop variables
-	// Calculate delta time
-	uint64_t now = SDL_GetTicksNS();
-	float dt = float(now) / 1000000000.0f; // 9 '0's
-	uint64_t lastTicks = now;
-	// Tile size for grid
-	int tileSize = 50;
-	// Seed random number generator
-	srand(static_cast<unsigned int>(time(nullptr)));
-	int totalEnemies = 10;
-	EnemyPool enemyPool(totalEnemies);
-	int totalSurvivors = 5;
-	SurvivorPool survivorPool(totalSurvivors); 
-	int round = 1;
-	bool roundActive = true;
-	uint64_t roundEndTime = 0;
-	int score = 0;
+	// Game initialisation - game setup moved to game.cpp
 
-	// Map dimensions
-	const int mapWidth = 4000;
-	const int mapHeight = 4000;
+    Game game(renderer, font, windowWidth, windowHeight);
 
-	// Camera position
-	float cameraX = 0.0f;
-	float cameraY = 0.0f;
+    // -- Game loop --
 
-	// Create player in the center of the map
-	const float pw = 50.0f, ph = 50.0f;
-	float startX = (mapWidth - pw) / 2.0f;
-	float startY = (mapHeight - ph) / 2.0f;
-	Player player(startX, startY, pw, ph, 5.0f);
+    SDL_Event event;
+    bool running = true;
+    uint64_t lastTicks = SDL_GetTicksNS();
 
+    while (game.isRunning() && running) {
 
-	// NPC spawning
-	const float minSpawnDistance = 400.0f;  // Safe distance away from player
-	// Spawn enemies
-	for (int i = 0; i < totalEnemies; ++i) {
-		Enemy* enemy = enemyPool.getEnemy();
-		if (enemy) {
-			float enemyX, enemyY, dx, dy, distance;
-			do {
-				enemyX = static_cast<float>(rand() % (mapWidth - 50));
-				enemyY = static_cast<float>(rand() % (mapHeight - 50));
-				dx = enemyX - startX;
-				dy = enemyY - startY;
-				distance = std::sqrt(dx * dx + dy * dy);
-			} while (distance < minSpawnDistance); // Keep trying until far enough
+        // Handle events
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;
+            }
+        }
 
-			enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Runner);
-		}
-	}
-	// Spawn survivors
-	for (int i = 0; i < totalSurvivors; ++i) {
-		Survivor* survivor = survivorPool.getSurvivor();
-		if (survivor) {
-			float survivorX, survivorY, dx, dy, distance;
-			do {
-				survivorX = static_cast<float>(rand() % (mapWidth - 50));
-				survivorY = static_cast<float>(rand() % (mapHeight - 50));
-				dx = survivorX - startX;
-				dy = survivorY - startY;
-				distance = std::sqrt(dx * dx + dy * dy);
-			} while (distance < minSpawnDistance); // Keep trying until far enough
+        // Calculate delta time
+        uint64_t now = SDL_GetTicksNS();
+        float dt = float(now) / 100000000000.0f; // 11 0's
+        lastTicks = now;
 
-			survivor->init(survivorX, survivorY);
-		}
-	}
+        // Update and render the game
+        game.update(dt);
+        game.render();
 
+        SDL_Delay(16); // ~60 FPS
+    }
 
+	// Cleanup
 
-	//// -- Game loop --
-	bool moving = true;
-	SDL_Event event;
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_Quit();
+    SDL_Quit();
 
-	while (moving) {
-		while (SDL_PollEvent(&event)) {
-			// Close window event
-			if (event.type == SDL_EVENT_QUIT) {
-				moving = false;
-			}
-		}
-
-		// Handle keyboard input
-		SDL_PumpEvents();
-
-		// Calculate delta time
-		uint64_t now = SDL_GetTicksNS();
-		float dt = float(now) / 100000000000.0f; // 10 '0's
-		uint64_t lastTicks = now;
-
-		// -- Update game state --
-		player.update(mapWidth, mapHeight, dt);
-		enemyPool.updateAll(dt, player.centreWorld()); 
-		enemyPool.checkPlayerCollision(player);
-		survivorPool.updateAll(dt);
-		survivorPool.checkPlayerCollision(player); 
-
-		// If player dies, so does the game :(
-		if (!player.isAlive()) {
-			std::cout << "You died! Final Score: " << score << "\n";
-			moving = false;
-		}
-
-		// bullet collision with enemies
-		int killed = enemyPool.handleEnemyDeath(player.getBulletPool());
-		if (killed > 0) {
-			score += killed;
-			std::cout << "Score: " << score << "\n";
-		}
-
-		//center camera on player
-		SDL_FPoint playerCentre = player.centreWorld();
-		cameraX = playerCentre.x - windowWidth / 2.0f;
-		cameraY = playerCentre.y - windowHeight / 2.0f;
-		if (cameraX < 0) cameraX = 0;
-		if (cameraY < 0) cameraY = 0;
-		if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
-		if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
-
-		// Rendering
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-		SDL_RenderClear(renderer);
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green grid lines
-		for (int y = 0; y <= mapHeight; y += tileSize) {
-			for (int x = 0; x <= mapWidth; x += tileSize) {
-				SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
-				SDL_RenderRect(renderer, &tileRect);
-			}
-		}
-		
-		// Render enemies and player
-		enemyPool.renderAll(renderer, cameraX, cameraY);
-		survivorPool.renderAll(renderer, cameraX, cameraY); 
-		player.render(renderer, cameraX, cameraY);
-
-		//// -- HUD --
-		DrawHUD(renderer, font, round, score, enemyPool, player, windowWidth, windowHeight); 		
-
-		// Draw everything to the screen
-		SDL_RenderPresent(renderer);
-
-		SDL_Delay(16); // ~60 FPS
-	}
-
-
-	//// Cleanup
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	TTF_CloseFont(font);
-	TTF_Quit(); 
-	SDL_Quit();
-
-	std::cout << "Game closed\n";
-	return 0;
+    std::cout << "Game closed\n";
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
