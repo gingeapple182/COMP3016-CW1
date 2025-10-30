@@ -6,6 +6,8 @@ class Player {
 public:
 	Player(float x, float y, float w, float h, float speedPerFrame);
 
+	int health = 5;
+
 	void update(int mapWidth, int mapHeight, float deltaTime);
 
 	void render(SDL_Renderer* renderer, float cameraX, float cameraY);
@@ -40,8 +42,6 @@ private:
 	float speed;
 	float angle = 0.0f; // Facing right initially
 	SDL_Color colour = { 241, 90, 34, 255 };
-
-	int health = 5;
 
 	// Bullet pool for the player
 	BulletPool bulletPool{ 500 }; 

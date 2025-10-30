@@ -26,7 +26,7 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 - [x] Player shooting
 	- Description: Add ability for the player to shoot bullets/projectiles. Include a simple bullet struct and spawn logic.
 
-- [ ] Make survivors (game objects)
+- [x] Make survivors (game objects)
 	- Description: Implement survivor entities that can be rescued. Define spawn, simple AI (idle) and interaction with the player.
 
 - [x] Make health system
@@ -35,13 +35,13 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 - [ ] Basic enemy AI
 	- Description: Implement a simple enemy that moves toward the player or along a patrol route.
 	Stage	Feature				Description
-	1		Basic spawn			2 enemies, random off-screen
-	2		Movement			Enemies seek player (simple direction vector)
-	3		Attack				Collision when close to player
-	4		Death				Bullets deactivate enemies
-	5		Pooling				Reuse enemies for performance (like bullets)
-	6		Round controller	Manage waves, timers, scaling enemy count
-	7		Enemy types			Different AI / movement patterns
+	[x]		Basic spawn			2 enemies, random off-screen
+	[x]		Movement			Enemies seek player (simple direction vector)
+	[x]		Attack				Collision when close to player
+	[x]		Death				Bullets deactivate enemies
+	[x]		Pooling				Reuse enemies for performance (like bullets)
+	[ ]		Round controller	Manage waves, timers, scaling enemy count
+	[ ]		Enemy types			Different AI / movement patterns
 
 - [ ] Enemy attack
 	- Description: Add attack behavior for enemies (melee hit, projectile, or both). Include damage application to player.
@@ -74,12 +74,12 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 	- Description: Add background music and SFX for shooting, damage, rescue, and UI actions. Include volume controls.
 
 - [ ] Additional polish / engineering tasks
-	- Object pooling for bullets (performance)
-	- Pause/menu screens, options (audio, controls)
-	- high score and basic settings
-	- Testing and bugfixes
+	[x] Object pooling for bullets (performance)
+	[ ] Pause/menu screens, options (audio, controls)
+	[ ] high score and basic settings
+	[ ] Testing and bugfixes
 
 
-- Milestone 1 (playable prototype): player movement, map, camera, shooting, one enemy type, one survivor type, health/score display
-- Milestone 2 (first loop): basic waves, scoring, rescue mechanics, simple UI and high-score
-- Milestone 3 (polish): art, music, additional enemy patterns, optimisations
+[x] Milestone 1 (playable prototype): player movement, map, camera, shooting, one enemy type, one survivor type, health/score display
+[ ] Milestone 2 (first loop): basic waves, scoring, rescue mechanics, simple UI and high-score
+[ ] Milestone 3 (polish): art, music, additional enemy patterns, optimisations

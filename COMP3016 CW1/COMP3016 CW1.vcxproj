@@ -144,6 +144,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyPool.cpp" />
     <ClCompile Include="Survivor.cpp" />
+    <ClCompile Include="SurvivorPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnemyPool.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="BulletPool.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Survivor.h" />
+    <ClInclude Include="SurvivorPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

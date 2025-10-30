@@ -60,6 +60,9 @@
     <ClCompile Include="HUD.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="SurvivorPool.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -84,6 +87,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="HUD.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SurvivorPool.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

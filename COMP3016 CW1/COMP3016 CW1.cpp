@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "BulletPool.h"
 #include "EnemyPool.h"
+#include "SurvivorPool.h"
 #include "HUD.h"
 
 void DrawHUD(SDL_Renderer* renderer, TTF_Font* font, int round, int score,
@@ -69,7 +70,11 @@ int main(int argc, char* argv[])
 	srand(static_cast<unsigned int>(time(nullptr)));
 	int totalEnemies = 10;
 	EnemyPool enemyPool(totalEnemies);
+	int totalSurvivors = 5;
+	SurvivorPool survivorPool(totalSurvivors); 
 	int round = 1;
+	bool roundActive = true;
+	uint64_t roundEndTime = 0;
 	int score = 0;
 
 	// Map dimensions
@@ -87,9 +92,9 @@ int main(int argc, char* argv[])
 	Player player(startX, startY, pw, ph, 5.0f);
 
 
-	// Enemy spawning
+	// NPC spawning
 	const float minSpawnDistance = 400.0f;  // Safe distance away from player
-
+	// Spawn enemies
 	for (int i = 0; i < totalEnemies; ++i) {
 		Enemy* enemy = enemyPool.getEnemy();
 		if (enemy) {
@@ -103,6 +108,22 @@ int main(int argc, char* argv[])
 			} while (distance < minSpawnDistance); // Keep trying until far enough
 
 			enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Runner);
+		}
+	}
+	// Spawn survivors
+	for (int i = 0; i < totalSurvivors; ++i) {
+		Survivor* survivor = survivorPool.getSurvivor();
+		if (survivor) {
+			float survivorX, survivorY, dx, dy, distance;
+			do {
+				survivorX = static_cast<float>(rand() % (mapWidth - 50));
+				survivorY = static_cast<float>(rand() % (mapHeight - 50));
+				dx = survivorX - startX;
+				dy = survivorY - startY;
+				distance = std::sqrt(dx * dx + dy * dy);
+			} while (distance < minSpawnDistance); // Keep trying until far enough
+
+			survivor->init(survivorX, survivorY);
 		}
 	}
 
@@ -132,6 +153,8 @@ int main(int argc, char* argv[])
 		player.update(mapWidth, mapHeight, dt);
 		enemyPool.updateAll(dt, player.centreWorld()); 
 		enemyPool.checkPlayerCollision(player);
+		survivorPool.updateAll(dt);
+		survivorPool.checkPlayerCollision(player); 
 
 		// If player dies, so does the game :(
 		if (!player.isAlive()) {
@@ -168,6 +191,7 @@ int main(int argc, char* argv[])
 		
 		// Render enemies and player
 		enemyPool.renderAll(renderer, cameraX, cameraY);
+		survivorPool.renderAll(renderer, cameraX, cameraY); 
 		player.render(renderer, cameraX, cameraY);
 
 		//// -- HUD --
