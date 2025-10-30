@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
         // Calculate delta time
         uint64_t now = SDL_GetTicksNS();
-        float dt = float(now) / 100000000000.0f; // 11 0's
+        float dt = (now - lastTicks) / 100000000.0f; // 11 0's
         lastTicks = now;
 
         // Update and render the game

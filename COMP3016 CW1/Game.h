@@ -13,6 +13,9 @@ public:
     void update(float dt);
     void render();
     bool isRunning() const { return running; }
+	void startNewRound();
+	void endRound();
+	void checkRoundProgression();
 
 private:
     void spawnEnemies();
@@ -33,7 +36,11 @@ private:
     SurvivorPool survivorPool;
 
     int score;
-    int round;
+    int round = 1;
+	bool roundInProgress = true;
+	uint64_t roundEndTime = 0;
+	const uint64_t roundDelay = 5000000000; // 5 seconds in nanoseconds
+	int rescuedSurvivors = 0;
     bool running;
 
     float cameraX;

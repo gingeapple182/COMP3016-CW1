@@ -76,8 +76,12 @@ void Game::spawnSurvivors() {
 // Handles collisions between player, enemies, and survivors
 void Game::handleCollisions() {
     enemyPool.checkPlayerCollision(player);
-    survivorPool.checkPlayerCollision(player);
+    int rescued = survivorPool.checkPlayerCollision(player);
 
+	if (rescued > 0) {
+		rescuedSurvivors += rescued;
+		std::cout << "Rescued Survivors: " << rescuedSurvivors << " / 5\n";
+	}
     int killed = enemyPool.handleEnemyDeath(player.getBulletPool());
     if (killed > 0) {
         score += killed;
@@ -108,6 +112,7 @@ void Game::update(float dt) {
     if (cameraY < 0) cameraY = 0;
     if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
     if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
+	checkRoundProgression();
 }
 
 void Game::render() {
@@ -127,7 +132,72 @@ void Game::render() {
     survivorPool.renderAll(renderer, cameraX, cameraY);
     player.render(renderer, cameraX, cameraY);
 
-    DrawHUD(renderer, font, round, score, enemyPool, player, windowWidth, windowHeight);
+    DrawHUD(renderer, font, round, score, enemyPool, survivorPool, player, windowWidth, windowHeight);
 
     SDL_RenderPresent(renderer);
+}
+
+void Game::startNewRound() {
+    std::cout << "\n=== Starting Round " << round << " ===\n";
+
+    // Reset counters and pools
+    rescuedSurvivors = 0;
+    enemyPool = EnemyPool(100); // Rebuild or clear
+    survivorPool = SurvivorPool(20);
+
+    // Spawn enemies (10 + 5 per round)
+    int numEnemies = 10 + ((round - 1) * 5);
+    const float minSpawnDistance = 400.0f;
+    SDL_FPoint playerPos = player.centreWorld();
+
+    for (int i = 0; i < numEnemies; ++i) {
+        Enemy* enemy = enemyPool.getEnemy();
+        if (enemy) {
+            float enemyX, enemyY, dx, dy, distance;
+            do {
+                enemyX = static_cast<float>(rand() % (mapWidth - 50));
+                enemyY = static_cast<float>(rand() % (mapHeight - 50));
+                dx = enemyX - playerPos.x;
+                dy = enemyY - playerPos.y;
+                distance = std::sqrt(dx * dx + dy * dy);
+            } while (distance < minSpawnDistance);
+            enemy->init(enemyX, enemyY, 10.0f, 2, EnemyType::Runner);
+        }
+    }
+
+    // Spawn survivors (always 5)
+    for (int i = 0; i < 5; ++i) {
+        Survivor* survivor = survivorPool.getSurvivor();
+        if (survivor) {
+            float sx = static_cast<float>(rand() % (mapWidth - 50));
+            float sy = static_cast<float>(rand() % (mapHeight - 50));
+            survivor->init(sx, sy);
+        }
+    }
+
+    roundInProgress = true;
+}
+
+void Game::endRound() {
+	std::cout << "=== Round " << round << " Complete! ===\n";
+	std::cout << "Rescued Survivors: " << rescuedSurvivors << " / 5\n";
+    roundInProgress = false;
+	roundEndTime = SDL_GetTicksNS();
+}
+
+void Game::checkRoundProgression() {
+	if (roundInProgress) {
+		// Check if all enemies are defeated
+		if (enemyPool.getActiveCount() == 0) {
+			endRound();
+		}
+	}
+	else {
+		// Check if delay has passed to start new round
+		uint64_t currentTime = SDL_GetTicksNS();
+		if (currentTime - roundEndTime >= roundDelay) {
+			round++;
+			startNewRound();
+		}
+	}
 }

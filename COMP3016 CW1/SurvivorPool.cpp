@@ -1,5 +1,6 @@
 #include "SurvivorPool.h"
 #include "Player.h"
+#include "Game.h"
 #include <SDL3/SDL.h>
 #include <iostream>
 
@@ -32,8 +33,8 @@ void SurvivorPool::renderAll(SDL_Renderer* renderer, float cameraX, float camera
 	}
 }
 
-bool SurvivorPool::checkPlayerCollision(Player& player) {
-	bool collisionDetected = false;
+int SurvivorPool::checkPlayerCollision(Player& player) {
+	int rescuedCount = 0;
 
 	for (auto& survivor : survivors) {
 
@@ -44,12 +45,12 @@ bool SurvivorPool::checkPlayerCollision(Player& player) {
 		if (SDL_HasRectIntersectionFloat(&survivor.getRect(), &player.getRect())) {
 			std::cout << "Player rescued a survivor!" << std::endl;
 			player.health++;
+			rescuedCount++;
 			// Deactivate survivor
 			survivor.deactivate();
-			collisionDetected = true;
 		}
 	}
-	return collisionDetected;
+	return rescuedCount;
 }
 
 int SurvivorPool::getActiveCount() const {

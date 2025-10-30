@@ -40,7 +40,7 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 	[x]		Attack				Collision when close to player
 	[x]		Death				Bullets deactivate enemies
 	[x]		Pooling				Reuse enemies for performance (like bullets)
-	[ ]		Round controller	Manage waves, timers, scaling enemy count
+	[x]		Round controller	Manage waves, timers, scaling enemy count
 	[ ]		Enemy types			Different AI / movement patterns
 
 - [ ] Enemy attack
@@ -54,6 +54,11 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 
 - [ ] Alternate enemy AI (patterns)
 	- Description: Implement additional enemy behaviors (orbiter, dodger, kamikaze, bullet patterns) to increase variety.
+
+- [ ] Buffs
+	- Description: Implement various buff types, permanent and temporary
+	[ ] Permanent buffs: Spend score to receive buffs
+	[ ] Temporary buffs: Pickups in a level that only persist for a set duration
 
 - [ ] Alternate enemy attack types
 	- Description: Add varied attack mechanics (spread shots, homing bullets, area attacks) for different enemy types.

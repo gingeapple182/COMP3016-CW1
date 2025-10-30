@@ -4,6 +4,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 class EnemyPool;
+class SurvivorPool;
 class Player;
 
 void DrawHUD(SDL_Renderer* renderer,
@@ -11,6 +12,7 @@ void DrawHUD(SDL_Renderer* renderer,
     int round,
     int score,
     const EnemyPool& enemyPool,
+	const SurvivorPool& survivorPool,
     const Player& player,
     int windowWidth,
     int windowHeight);

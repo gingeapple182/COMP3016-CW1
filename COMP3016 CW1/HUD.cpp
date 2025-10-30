@@ -4,11 +4,12 @@
 #include <iostream>
 #include "HUD.h"
 #include "EnemyPool.h"
+#include "SurvivorPool.h"
 #include "Player.h"
 
 
 void DrawHUD(SDL_Renderer* renderer, TTF_Font* font, int round, int score,
-	const EnemyPool& enemyPool, const Player& player,
+	const EnemyPool& enemyPool, const SurvivorPool& survivorPool, const Player& player,
 	int windowWidth, int windowHeight) {
 	SDL_Color white = { 255, 255, 255, 255 };
 	// ROUND -- top left
@@ -48,6 +49,24 @@ void DrawHUD(SDL_Renderer* renderer, TTF_Font* font, int round, int score,
 			// Render the texture to the screen
 			SDL_FRect dstRect = { 10.0f, 10.0f + 30.0f, (float)surface->w, (float)surface->h }; // Below ROUND
 			SDL_RenderTexture(renderer, texture, nullptr, &dstRect); // Show on screen
+
+			SDL_DestroyTexture(texture);
+			SDL_DestroySurface(surface);
+		}
+	}
+	// Survivors remaining -- top left below ENEMIES
+	{
+		std::string survivorsText = "Survivors remaining: " + std::to_string(survivorPool.getActiveCount());
+
+		SDL_Surface* surface = TTF_RenderText_Solid(font, survivorsText.c_str(), survivorsText.length(), white);
+		if (!surface) {
+			std::cerr << "TTF_RenderText_Solid Error: " << SDL_GetError() << std::endl;
+		}
+		else {
+			SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+			SDL_FRect dstRect = { 10.0f, 10.0f + 60.0f, (float)surface->w, (float)surface->h }; // Below ENEMIES
+			SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
 
 			SDL_DestroyTexture(texture);
 			SDL_DestroySurface(surface);
