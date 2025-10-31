@@ -31,4 +31,8 @@ private:
 	int damage;
 	SDL_FRect rect;
 	SDL_Color colour;
+	//extras for shooter
+	float engageDistance = 400.0f;
+	float baseSpeed = 10.0f;
+	bool isShooterShooting = false;
 };

@@ -45,6 +45,7 @@ int SurvivorPool::checkPlayerCollision(Player& player) {
 		if (SDL_HasRectIntersectionFloat(&survivor.getRect(), &player.getRect())) {
 			std::cout << "Player rescued a survivor!" << std::endl;
 			player.health++;
+			player.increaseSize(1.05f);
 			rescuedCount++;
 			// Deactivate survivor
 			survivor.deactivate();

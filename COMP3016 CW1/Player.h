@@ -22,6 +22,7 @@ public:
 	SDL_FPoint facingVector() const;
 	float angleRad = 0.0f;
 	const SDL_FRect& getRect() const { return rect; }
+	void increaseSize(float scaleFactor = 1.05f);
 
 	// Player health
 	int getHealth() const { return health; }

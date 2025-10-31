@@ -127,3 +127,15 @@ void Player::takeDamage(int damage)
 	
 	std::cout << "Player took " << damage << " damage. Health: " << health << "\n";
 }
+
+void Player::increaseSize(float scaleFactor)
+{
+	float centerX = rect.x + rect.w / 2.0f;
+	float centerY = rect.y + rect.h / 2.0f;
+
+	rect.w *= scaleFactor;
+	rect.h *= scaleFactor;
+
+	rect.x = centerX - rect.w / 2.0f;
+	rect.y = centerY - rect.h / 2.0f;
+}

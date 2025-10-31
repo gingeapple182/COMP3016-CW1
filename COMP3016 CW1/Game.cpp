@@ -46,7 +46,7 @@ void Game::spawnEnemies() {
                 distance = std::sqrt(dx * dx + dy * dy);
             } while (distance < minSpawnDistance);
 
-            enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Runner);
+            enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Shooter);
         }
     }
 }
@@ -161,7 +161,8 @@ void Game::startNewRound() {
                 dy = enemyY - playerPos.y;
                 distance = std::sqrt(dx * dx + dy * dy);
             } while (distance < minSpawnDistance);
-            enemy->init(enemyX, enemyY, 10.0f, 2, EnemyType::Runner);
+            enemy->init(enemyX, enemyY, 10.0f, 2, EnemyType::Shooter);
+
         }
     }
 

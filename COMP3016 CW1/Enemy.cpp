@@ -16,8 +16,14 @@ void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, 
 	speed = enemySpeed;
 	damage = enemyDamage;
 	active = true;
+	type = enemyType;
 
 	applyTypeAttributes();
+
+	if (enemyType == EnemyType::Shooter) {
+		engageDistance = 350.0f + (rand() % 100); // Random between 350 and 450
+		baseSpeed = speed;
+	}
 
 	rect.x = x - rect.w / 2;
 	rect.y = y - rect.h / 2;
@@ -25,24 +31,60 @@ void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, 
 
 void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition)
 {
-	// If not active, do nothing
 	if (!active) return;
 
-	if (type == EnemyType::Runner) {
-		float dx = playerPosition.x - x;
-		float dy = playerPosition.y - y;
-		float distance = std::sqrt(dx * dx + dy * dy);
-		if (distance != 0) {
-			dx /= distance;
-			dy /= distance;
-		}
+	float dx = playerPosition.x - x;
+	float dy = playerPosition.y - y;
+	float distance = std::sqrt(dx * dx + dy * dy);
+	if (distance != 0.0f) {
+		dx /= distance;
+		dy /= distance;
+	}
 
+	switch (type)
+	{
+	case EnemyType::Runner:
+		// Simple direct chase
 		x += dx * speed * deltaTime;
 		y += dy * speed * deltaTime;
-		rect.x = x - rect.w / 2;
-		rect.y = y - rect.h / 2;
+		colour = { 0, 255, 0, 255 }; // green
+		break;
+
+	case EnemyType::Shooter:
+	{
+		// Base state colour
+		colour = { 0, 128, 255, 255 }; // Bright blue
+
+		if (distance > engageDistance) {
+			// Full-speed approach
+			isShooterShooting = false;
+			x += dx * baseSpeed * deltaTime;
+			y += dy * baseSpeed * deltaTime;
+		}
+		else if (distance > engageDistance * 0.75f) {
+			// Slow approach
+			isShooterShooting = false;
+			float slowedSpeed = baseSpeed * 0.66f;
+			x += dx * slowedSpeed * deltaTime;
+			y += dy * slowedSpeed * deltaTime;
+			colour = { 0, 64, 200, 255 }; // Medium blue
+		}
+		else {
+			// Within range — stop and prepare to shoot
+			isShooterShooting = true;
+			colour = { 0, 0, 128, 255 }; // Dark blue when stationary
+			// No movement
+		}
+		break;
 	}
-	
+
+	case EnemyType::Sniper:
+		// Placeholder
+		break;
+	}
+
+	rect.x = x - rect.w / 2;
+	rect.y = y - rect.h / 2;
 }
 
 void Enemy::render(SDL_Renderer* renderer, float cameraX, float cameraY)
@@ -59,7 +101,7 @@ void Enemy::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	};
 
 	// Draw enemy
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+	SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
 	SDL_RenderFillRect(renderer, &screenRect);
 }
 

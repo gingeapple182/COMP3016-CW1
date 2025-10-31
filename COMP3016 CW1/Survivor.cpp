@@ -4,7 +4,7 @@ Survivor::Survivor()
 	: x(0), y(0), active(false)
 {
 	rect = { x, y, 32.0f, 32.0f };
-	colour = { 255, 255, 0, 255 }; // Yellow color
+	colour = { 200, 0, 200, 255 }; // purple
 }
 
 void Survivor::init(float startX, float startY)
