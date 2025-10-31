@@ -47,7 +47,7 @@ void Player::update(int mapWidth, int mapHeight, float deltaTime)
 			bullet->init(center.x, center.y, dir.x, dir.y, 600.0f);
 		}
 
-		shootCooldown = 0.2f;
+		shootCooldown = 0.1f;
 	}
 	bulletPool.updateAll(1.0f / 60.0f);
 }

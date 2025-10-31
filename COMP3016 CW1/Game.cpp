@@ -117,7 +117,6 @@ void Game::update(float dt)
         // Press SPACE to go to instructions
         if (keys[SDL_SCANCODE_SPACE])
             state = GameState::INSTRUCTIONS;
-	        std::cout << "Game State: INSTRUCTIONS" << std::endl;
         return;
 
     case GameState::INSTRUCTIONS:
@@ -135,7 +134,6 @@ void Game::update(float dt)
             spawnSurvivors();
             player.reset();
             state = GameState::PLAY;
-			std::cout << "Game State: PLAY" << std::endl;
         }
         return;
 
@@ -150,7 +148,6 @@ void Game::update(float dt)
 		// Game over if player is dead
         if (!player.isAlive()) {
             state = GameState::GAMEOVER;
-			std::cout << "Game State: GAMEOVER" << std::endl;
             return;
         }
 
@@ -167,10 +164,9 @@ void Game::update(float dt)
         return;
 
     case GameState::GAMEOVER:
-        // press R to return to start
-        if (keys[SDL_SCANCODE_R]) {
+        // press ENTER to return to start
+        if (keys[SDL_SCANCODE_RETURN]) {
             state = GameState::START;
-			std::cout << "Game State: START" << std::endl;
         }
         return;
     }
@@ -302,28 +298,59 @@ void Game::drawText(const char* msg, float x, float y, SDL_Color colour)
 void Game::renderStartScreen()
 {
     SDL_Color white = { 255,255,255,255 };
-    drawText("TOP-DOWN SURVIVOR", 80, 120, white);
-    drawText("Press SPACE to view controls", 80, 180, white);
+	float widthAllign = windowWidth * 0.35f;
+    drawText("TOP-DOWN SURVIVOR", widthAllign, windowHeight * 0.33f, white);
+    drawText("Press SPACE to view controls", widthAllign, windowHeight * 0.66f, white);
 }
 
 void Game::renderInstructionsScreen()
 {
     SDL_Color white = { 255,255,255,255 };
-    drawText("CONTROLS:", 80, 80, white);
-    drawText("WASD / Arrows: move", 80, 120, white);
-    drawText("Mouse aims, SPACE shoots", 80, 150, white);
-    drawText("Rescue PURPLE survivors to gain health/size", 80, 190, white);
-    drawText("GREEN = runners, BLUE = shooters", 80, 220, white);
-    drawText("Press ENTER to begin", 80, 270, white);
+    float widthAlign = windowWidth * 0.20f;
+	float iconAlign = widthAlign - 60.0f;
+    float conceptY = windowHeight * 0.15f;
+    float detailsY = windowHeight * 0.30f;
+	float rectSize = 30.0f;
+
+    drawText("Survive waves of enemies and rescue survivors", widthAlign, conceptY, white);
+    drawText("to increase your health but also your SIZE!", widthAlign, conceptY + 30, white);
+
+    drawText("CONTROLS:", widthAlign, detailsY, white);
+    drawText("WASD / Arrows - Move", widthAlign, detailsY + 30, white);
+    drawText("Mouse aims, SPACE shoots", widthAlign, detailsY + 60, white);
+
+    drawText("ENTITY GUIDE:", widthAlign, detailsY + 110, white);
+    drawText("[Survivor] - Rescue them to gain health and size", widthAlign, detailsY + 140, white);
+    SDL_SetRenderDrawColor(renderer, 200, 0, 200, 255); // purple
+    SDL_FRect survivorRect = { iconAlign, detailsY + 140, rectSize, rectSize };
+    SDL_RenderFillRect(renderer, &survivorRect);
+    drawText("[Runner]   - Charges at you to melee attack", widthAlign, detailsY + 180, white);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // green
+    SDL_FRect runnerRect = { iconAlign, detailsY + 180, rectSize, rectSize };
+    SDL_RenderFillRect(renderer, &runnerRect);
+    drawText("[Shooter]  - Seeks you out and fires from a distance", widthAlign, detailsY + 220, white);
+    SDL_SetRenderDrawColor(renderer, 0, 120, 255, 255); // blue
+    SDL_FRect shooterRect = { iconAlign, detailsY + 220, rectSize, rectSize };
+    SDL_RenderFillRect(renderer, &shooterRect);
+
+    drawText("Press ENTER to begin", widthAlign, windowHeight * 0.80f, white);
 }
+
+
+
 
 void Game::renderGameOverScreen()
 {
     SDL_Color white = { 255,255,255,255 };
-    drawText("GAME OVER", 80, 120, white);
+	float widthAllign = windowWidth * 0.35f;
+	float heightCenter = windowHeight * 0.5f;
 
+    drawText("GAME OVER", widthAllign, windowHeight * 0.33f, white);
+
+	std::string roundLine = "Rounds survived: " + std::to_string(round);
+	drawText(roundLine.c_str(), widthAllign, heightCenter - 20, white);
     std::string scoreLine = "Final score: " + std::to_string(score);
-    drawText(scoreLine.c_str(), 80, 160, white);
+    drawText(scoreLine.c_str(), widthAllign, heightCenter + 20, white);
 
-    drawText("Press R to return to start", 80, 200, white);
+    drawText("Press ENTER to return to start", widthAllign, windowHeight * 0.66f, white);
 }
