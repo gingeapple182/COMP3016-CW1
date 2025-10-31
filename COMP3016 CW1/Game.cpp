@@ -103,6 +103,7 @@ void Game::handleCollisions() {
     if (killed > 0) {
         score += killed;
 		roundKills += killed;
+		totalKills += killed;
         std::cout << "Score: " << score << "\n";
     }
 }
@@ -127,6 +128,7 @@ void Game::update(float dt)
             round = 1;
             score = 0;
             rescuedSurvivors = 0;
+			totalKills = 0;
 
             enemyPool = EnemyPool(100);
             survivorPool = SurvivorPool(20);
@@ -385,10 +387,12 @@ void Game::renderGameOverScreen()
 
     drawText("GAME OVER", widthAllign, windowHeight * 0.33f, white);
 
-	std::string roundLine = "Rounds survived: " + std::to_string(round);
-	drawText(roundLine.c_str(), widthAllign, heightCenter - 20, white);
-    std::string scoreLine = "Final score: " + std::to_string(score);
-    drawText(scoreLine.c_str(), widthAllign, heightCenter + 20, white);
+	std::string roundLine = "Rounds survived: " + std::to_string(round - 1);
+	drawText(roundLine.c_str(), widthAllign, heightCenter - 40, white);
+	std::string killLine = "Total enemies defeated: " + std::to_string(totalKills);
+	drawText(killLine.c_str(), widthAllign, heightCenter, white);
+    std::string scoreLine = "Final score: " + std::to_string(score + round - 1);
+    drawText(scoreLine.c_str(), widthAllign, heightCenter + 40, white);
 
     drawText("Press ENTER to return to start", widthAllign, windowHeight * 0.66f, white);
 }

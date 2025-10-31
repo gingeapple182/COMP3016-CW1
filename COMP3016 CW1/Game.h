@@ -57,6 +57,7 @@ private:
 	uint64_t roundEndTime = 0;
 	const uint64_t roundDelay = 5000000000; // 5 seconds in nanoseconds
 	int roundKills = 0;
+	int totalKills = 0;
 	int rescuedSurvivors = 0;
     bool running;
 
