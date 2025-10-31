@@ -32,14 +32,17 @@ Game::~Game() = default;
 static EnemyType pickEnemyType(int round) {
     if (round < 5)
         return EnemyType::Runner;
-    else if (round < 10)
+    else if (round == 5) {
+        int r = rand() % 100;
+		if (r < 25) return EnemyType::Shooter;  // 25% chance Shooter
+		else return EnemyType::Runner;          // 75% chance Runner
+    } else if (round < 10)
         return (rand() % 2 == 0) ? EnemyType::Runner : EnemyType::Shooter;
     else {
         int r = rand() % 100;
-        if (r < 25) return EnemyType::Runner;
-        else if (r < 75) return EnemyType::Shooter;
-        else return EnemyType::Sniper;
-
+		if (r < 25) return EnemyType::Runner;       // 25% chance Runner
+		else if (r < 75) return EnemyType::Shooter; // 50% chance Shooter
+        else return EnemyType::Shooter; // Will add sniper here once developed
     }
 }
 
