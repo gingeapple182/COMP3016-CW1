@@ -34,6 +34,7 @@ private:
 
 	void renderStartScreen();
 	void renderInstructionsScreen();
+	void renderRoundSummaryOverlay();
 	void renderGameOverScreen();
     void drawText(const char* text, float x, float y, SDL_Color color);
 
@@ -55,6 +56,7 @@ private:
 	bool roundInProgress = true;
 	uint64_t roundEndTime = 0;
 	const uint64_t roundDelay = 5000000000; // 5 seconds in nanoseconds
+	int roundKills = 0;
 	int rescuedSurvivors = 0;
     bool running;
 

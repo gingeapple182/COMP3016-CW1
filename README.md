@@ -32,7 +32,7 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 - [x] Make health system
 	- Description: Implement player health, damage, healing from rescued survivors, and simple UI display (health bar or number).
 
-- [ ] Basic enemy AI
+- [x] Basic enemy AI
 	- Description: Implement a simple enemy that moves toward the player or along a patrol route.
 	Stage	Feature				Description
 	[x]		Basic spawn			2 enemies, random off-screen
@@ -41,9 +41,9 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 	[x]		Death				Bullets deactivate enemies
 	[x]		Pooling				Reuse enemies for performance (like bullets)
 	[x]		Round controller	Manage waves, timers, scaling enemy count
-	[ ]		Enemy types			Different AI / movement patterns
+	[x]		Enemy types			Different AI / movement patterns
 
-- [ ] Enemy attack
+- [x] Enemy attack
 	- Description: Add attack behavior for enemies (melee hit, projectile, or both). Include damage application to player.
 
 - [ ] Survivor/enemy interactions / balancing
@@ -80,11 +80,12 @@ Rescue Protocol is a top-down sci-fi bullet hell roguelike. The goal is to survi
 
 - [ ] Additional polish / engineering tasks
 	[x] Object pooling for bullets (performance)
+	[x] Start, Instructions, Gameover and Roundchange screens
 	[ ] Pause/menu screens, options (audio, controls)
 	[ ] high score and basic settings
 	[ ] Testing and bugfixes
 
 
 [x] Milestone 1 (playable prototype): player movement, map, camera, shooting, one enemy type, one survivor type, health/score display
-[ ] Milestone 2 (first loop): basic waves, scoring, rescue mechanics, simple UI and high-score
+[x] Milestone 2 (first loop): basic waves, scoring, rescue mechanics, simple UI and high-score
 [ ] Milestone 3 (polish): art, music, additional enemy patterns, optimisations

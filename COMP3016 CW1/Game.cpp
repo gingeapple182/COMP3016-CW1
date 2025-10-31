@@ -102,6 +102,7 @@ void Game::handleCollisions() {
     int killed = enemyPool.handleEnemyDeath(player.getBulletPool());
     if (killed > 0) {
         score += killed;
+		roundKills += killed;
         std::cout << "Score: " << score << "\n";
     }
 }
@@ -202,6 +203,8 @@ void Game::render()
         survivorPool.renderAll(renderer, cameraX, cameraY);
         player.render(renderer, cameraX, cameraY);
         DrawHUD(renderer, font, round, score, enemyPool, survivorPool, player, windowWidth, windowHeight);
+		if (!roundInProgress)
+			renderRoundSummaryOverlay();
         break;
 
     case GameState::GAMEOVER:
@@ -218,6 +221,7 @@ void Game::startNewRound() {
 
     // Reset counters and pools
     rescuedSurvivors = 0;
+	roundKills = 0;
     enemyPool = EnemyPool(100);
     survivorPool = SurvivorPool(20);
 
@@ -336,7 +340,41 @@ void Game::renderInstructionsScreen()
     drawText("Press ENTER to begin", widthAlign, windowHeight * 0.80f, white);
 }
 
+void Game::renderRoundSummaryOverlay()
+{
+    if (roundInProgress) return; // only show between rounds
 
+	// Calculate time left until next round
+    uint64_t currentTime = SDL_GetTicksNS();
+    float secondsLeft = (float)(roundDelay - (currentTime - roundEndTime)) / 1000000000.0f;
+    if (secondsLeft < 0) secondsLeft = 0;
+
+    SDL_Color white = { 255, 255, 255, 255 };
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 160);
+
+	// Draw box
+    SDL_FRect box = {
+        windowWidth * 0.25f,
+        windowHeight * 0.15f,
+        windowWidth * 0.5f,
+        windowHeight * 0.25f
+    };
+    SDL_RenderFillRect(renderer, &box);
+
+    float xAlign = windowWidth * 0.30f;
+    float y = windowHeight * 0.20f;
+
+    std::string line1 = "ROUND " + std::to_string(round) + " COMPLETE";
+	std::string line2 = "Enemies defeated: " + std::to_string(roundKills);
+    std::string line3 = "Survivors rescued: " + std::to_string(rescuedSurvivors);
+    std::string line4 = "Next round starting in: " + std::to_string((int)ceil(secondsLeft));
+
+	// Draw text
+    drawText(line1.c_str(), xAlign, y, white);
+    drawText(line2.c_str(), xAlign, y + 30, white);
+    drawText(line3.c_str(), xAlign, y + 60, white);
+    drawText(line4.c_str(), xAlign, y + 90, white);
+}
 
 
 void Game::renderGameOverScreen()
