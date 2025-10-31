@@ -29,6 +29,20 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 // Game manager destructor
 Game::~Game() = default;
 
+static EnemyType pickEnemyType(int round) {
+    if (round < 5)
+        return EnemyType::Runner;
+    else if (round < 10)
+        return (rand() % 2 == 0) ? EnemyType::Runner : EnemyType::Shooter;
+    else {
+        int r = rand() % 100;
+        if (r < 25) return EnemyType::Runner;
+        else if (r < 75) return EnemyType::Shooter;
+        else return EnemyType::Sniper;
+
+    }
+}
+
 // Spawns enemies at random positions on the map
 void Game::spawnEnemies() {
     const float minSpawnDistance = 400.0f;
@@ -45,8 +59,8 @@ void Game::spawnEnemies() {
                 dy = enemyY - playerPos.y;
                 distance = std::sqrt(dx * dx + dy * dy);
             } while (distance < minSpawnDistance);
-
-            enemy->init(enemyX, enemyY, 15.0f, 2, EnemyType::Shooter);
+			EnemyType type = pickEnemyType(round);
+            enemy->init(enemyX, enemyY, 15.0f, 2, type);
         }
     }
 }
@@ -145,28 +159,29 @@ void Game::startNewRound() {
 
     // Reset counters and pools
     rescuedSurvivors = 0;
-    enemyPool = EnemyPool(100); // Rebuild or clear
+    enemyPool = EnemyPool(100);
     survivorPool = SurvivorPool(20);
 
     // Spawn enemies (10 + 5 per round)
-    int numEnemies = 10 + ((round - 1) * 5);
+	int numEnemies = 10 + ((round - 1) * 5);
     const float minSpawnDistance = 400.0f;
     SDL_FPoint playerPos = player.centreWorld();
 
     for (int i = 0; i < numEnemies; ++i) {
         Enemy* enemy = enemyPool.getEnemy();
-        if (enemy) {
-            float enemyX, enemyY, dx, dy, distance;
-            do {
-                enemyX = static_cast<float>(rand() % (mapWidth - 50));
-                enemyY = static_cast<float>(rand() % (mapHeight - 50));
-                dx = enemyX - playerPos.x;
-                dy = enemyY - playerPos.y;
-                distance = std::sqrt(dx * dx + dy * dy);
-            } while (distance < minSpawnDistance);
-            enemy->init(enemyX, enemyY, 10.0f, 2, EnemyType::Shooter);
+        if (!enemy) continue;
 
-        }
+		float enemyX, enemyY, dx, dy, distance;
+		do {
+			enemyX = static_cast<float>(rand() % (mapWidth - 50));
+			enemyY = static_cast<float>(rand() % (mapHeight - 50));
+			dx = enemyX - playerPos.x;
+			dy = enemyY - playerPos.y;
+			distance = std::sqrt(dx * dx + dy * dy);
+		} while (distance < minSpawnDistance);
+
+		EnemyType type = pickEnemyType(round);
+		enemy->init(enemyX, enemyY, 15.0f, 2, type);
     }
 
     // Spawn survivors (always 5)
