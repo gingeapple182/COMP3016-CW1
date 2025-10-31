@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "BulletPool.h"
 #include <cmath>
 
 Enemy::Enemy()
@@ -29,9 +30,13 @@ void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, 
 	rect.y = y - rect.h / 2;
 }
 
-void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition)
+void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool& enemyBullets)
 {
 	if (!active) return;
+
+	if (shooterCooldown > 0.0f) {
+		shooterCooldown -= deltaTime;
+	}
 
 	float dx = playerPosition.x - x;
 	float dy = playerPosition.y - y;
@@ -52,7 +57,6 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition)
 
 	case EnemyType::Shooter:
 	{
-		// Base state colour
 		colour = { 0, 128, 255, 255 }; // Bright blue
 
 		if (distance > engageDistance) {
@@ -63,17 +67,33 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition)
 		}
 		else if (distance > engageDistance * 0.75f) {
 			// Slow approach
-			isShooterShooting = false;
+			isShooterShooting = true;
 			float slowedSpeed = baseSpeed * 0.66f;
 			x += dx * slowedSpeed * deltaTime;
 			y += dy * slowedSpeed * deltaTime;
 			colour = { 0, 64, 200, 255 }; // Medium blue
+			// Shooting
+			if (shooterCooldown <= 0.0f) {
+				Bullet* bullet = enemyBullets.getBullet();
+				if (bullet) {
+					bullet->init(x, y, dx, dy, ShooterShootySpeed);
+				}
+				shooterCooldown = 15.0f;
+			}
 		}
 		else {
 			// Within range — stop and prepare to shoot
 			isShooterShooting = true;
 			colour = { 0, 0, 128, 255 }; // Dark blue when stationary
 			// No movement
+			// Shooting
+			if (shooterCooldown <= 0.0f) {
+				Bullet* bullet = enemyBullets.getBullet();
+				if (bullet) {
+					bullet->init(x, y, dx, dy, ShooterShootySpeed);
+				}
+				shooterCooldown = 15.0f;
+			}
 		}
 		break;
 	}

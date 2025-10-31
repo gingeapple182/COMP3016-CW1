@@ -23,7 +23,7 @@ void EnemyPool::updateAll(float deltaTime, const SDL_FPoint& playerPosition)
 {
 	for (auto& enemy : enemies) {
 		if (enemy.isActive()) {
-			enemy.update(deltaTime, playerPosition);
+			enemy.update(deltaTime, playerPosition, enemyBullets);
 		}
 	}
 }
@@ -97,4 +97,36 @@ int EnemyPool::getActiveCount() const
 		}
 	}
 	return count;
+}
+
+void EnemyPool::updateEnemyBullets(float deltaTime)
+{
+	enemyBullets.updateAll(deltaTime);
+}
+
+void EnemyPool::renderEnemyBullets(SDL_Renderer* renderer, float cameraX, float cameraY)
+{
+	enemyBullets.renderAll(renderer, cameraX, cameraY);
+}
+
+bool EnemyPool::checkEnemyBulletCollision(Player& player)
+{
+	bool hit = false;
+
+	for (auto& bullet : enemyBullets.getBullets()) {
+
+		// Skip inactive bullets
+		if (!bullet.isActive()) continue;
+
+		// Axis-aligned bounding box (AABB) collision detection
+		if (SDL_HasRectIntersectionFloat(&bullet.getRect(), &player.getRect())) {
+			std::cout << "Player hit by enemy bullet!" << std::endl;
+			// Inflict damage to player
+			player.takeDamage(1);
+			// Deactivate bullet
+			bullet.deactivate();
+			hit = true;
+		}
+	}
+	return hit;
 }

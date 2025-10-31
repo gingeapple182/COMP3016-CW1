@@ -14,7 +14,7 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
     windowHeight(windowHeight),
     enemyPool(10),
     survivorPool(5),
-    player((4000 - 50) / 2.0f, (4000 - 50) / 2.0f, 50.0f, 50.0f, 5.0f),
+    player((4000 - 50) / 2.0f, (4000 - 50) / 2.0f, 40.0f, 40.0f, 5.0f),
     score(0),
     round(1),
     running(true),
@@ -76,6 +76,7 @@ void Game::spawnSurvivors() {
 // Handles collisions between player, enemies, and survivors
 void Game::handleCollisions() {
     enemyPool.checkPlayerCollision(player);
+	enemyPool.checkEnemyBulletCollision(player);
     int rescued = survivorPool.checkPlayerCollision(player);
 
 	if (rescued > 0) {
@@ -93,6 +94,7 @@ void Game::handleCollisions() {
 void Game::update(float dt) {
     player.update(mapWidth, mapHeight, dt);
     enemyPool.updateAll(dt, player.centreWorld());
+	enemyPool.updateEnemyBullets(dt);
     survivorPool.updateAll(dt);
 
     handleCollisions();
@@ -129,6 +131,7 @@ void Game::render() {
     }
 	// Draw game objects
     enemyPool.renderAll(renderer, cameraX, cameraY);
+	enemyPool.renderEnemyBullets(renderer, cameraX, cameraY);
     survivorPool.renderAll(renderer, cameraX, cameraY);
     player.render(renderer, cameraX, cameraY);
 
