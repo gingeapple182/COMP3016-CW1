@@ -1,9 +1,17 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <string>
 #include "Player.h"
 #include "EnemyPool.h"
 #include "SurvivorPool.h"
+
+enum class GameState {
+    START,
+    INSTRUCTIONS,
+    PLAY,
+    GAMEOVER
+};
 
 class Game {
 public:
@@ -18,9 +26,16 @@ public:
 	void checkRoundProgression();
 
 private:
+	GameState state = GameState::START;
+
     void spawnEnemies();
     void spawnSurvivors();
     void handleCollisions();
+
+	void renderStartScreen();
+	void renderInstructionsScreen();
+	void renderGameOverScreen();
+    void drawText(const char* text, float x, float y, SDL_Color color);
 
     SDL_Renderer* renderer;
     TTF_Font* font;

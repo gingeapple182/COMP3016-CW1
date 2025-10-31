@@ -38,6 +38,8 @@ public:
 		bulletPool.renderAll(renderer, cameraX, cameraY);
 	}
 
+	void reset();
+
 private:
 	SDL_FRect rect;
 	float speed;

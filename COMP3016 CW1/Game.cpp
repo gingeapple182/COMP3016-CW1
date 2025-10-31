@@ -19,11 +19,10 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
     round(1),
     running(true),
     cameraX(0.0f),
-    cameraY(0.0f)
+    cameraY(0.0f),
+	state(GameState::START)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
-    spawnEnemies();
-    spawnSurvivors();
 }
 
 // Game manager destructor
@@ -108,54 +107,115 @@ void Game::handleCollisions() {
 }
 
 // Updates game state
-void Game::update(float dt) {
-    player.update(mapWidth, mapHeight, dt);
-    enemyPool.updateAll(dt, player.centreWorld());
-	enemyPool.updateEnemyBullets(dt);
-    survivorPool.updateAll(dt);
+void Game::update(float dt)
+{
+    const bool* keys = SDL_GetKeyboardState(nullptr);
 
-    handleCollisions();
+    switch (state)
+    {
+    case GameState::START:
+        // Press SPACE to go to instructions
+        if (keys[SDL_SCANCODE_SPACE])
+            state = GameState::INSTRUCTIONS;
+	        std::cout << "Game State: INSTRUCTIONS" << std::endl;
+        return;
 
-	// Game over if player is dead
-    if (!player.isAlive()) {
-        std::cout << "You died! Final Score: " << score << "\n";
-        running = false;
+    case GameState::INSTRUCTIONS:
+        // Press ENTER to begin game
+        if (keys[SDL_SCANCODE_RETURN]) {
+            // reset key variables and start first round
+            round = 1;
+            score = 0;
+            rescuedSurvivors = 0;
+
+            enemyPool = EnemyPool(100);
+            survivorPool = SurvivorPool(20);
+
+            spawnEnemies();
+            spawnSurvivors();
+            player.reset();
+            state = GameState::PLAY;
+			std::cout << "Game State: PLAY" << std::endl;
+        }
+        return;
+
+    case GameState::PLAY:
+        player.update(mapWidth, mapHeight, dt);
+        enemyPool.updateAll(dt, player.centreWorld());
+        enemyPool.updateEnemyBullets(dt);
+        survivorPool.updateAll(dt);
+
+        handleCollisions();
+
+		// Game over if player is dead
+        if (!player.isAlive()) {
+            state = GameState::GAMEOVER;
+			std::cout << "Game State: GAMEOVER" << std::endl;
+            return;
+        }
+
+        // Update camera
+        SDL_FPoint playerCentre = player.centreWorld();
+        cameraX = playerCentre.x - windowWidth / 2.0f;
+        cameraY = playerCentre.y - windowHeight / 2.0f;
+        if (cameraX < 0) cameraX = 0;
+        if (cameraY < 0) cameraY = 0;
+        if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
+        if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
+
+        checkRoundProgression();
+        return;
+
+    case GameState::GAMEOVER:
+        // press R to return to start
+        if (keys[SDL_SCANCODE_R]) {
+            state = GameState::START;
+			std::cout << "Game State: START" << std::endl;
+        }
         return;
     }
-
-    // Update camera
-    SDL_FPoint playerCentre = player.centreWorld();
-    cameraX = playerCentre.x - windowWidth / 2.0f;
-    cameraY = playerCentre.y - windowHeight / 2.0f;
-    if (cameraX < 0) cameraX = 0;
-    if (cameraY < 0) cameraY = 0;
-    if (cameraX > mapWidth - windowWidth) cameraX = mapWidth - windowWidth;
-    if (cameraY > mapHeight - windowHeight) cameraY = mapHeight - windowHeight;
-	checkRoundProgression();
 }
 
-void Game::render() {
+void Game::render()
+{
 	// Clear screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-	// Draw map grid
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    for (int y = 0; y <= mapHeight; y += tileSize) {
-        for (int x = 0; x <= mapWidth; x += tileSize) {
-            SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
-            SDL_RenderRect(renderer, &tileRect);
-        }
-    }
-	// Draw game objects
-    enemyPool.renderAll(renderer, cameraX, cameraY);
-	enemyPool.renderEnemyBullets(renderer, cameraX, cameraY);
-    survivorPool.renderAll(renderer, cameraX, cameraY);
-    player.render(renderer, cameraX, cameraY);
 
-    DrawHUD(renderer, font, round, score, enemyPool, survivorPool, player, windowWidth, windowHeight);
+    switch (state)
+    {
+    case GameState::START:
+        renderStartScreen();
+        break;
+
+    case GameState::INSTRUCTIONS:
+        renderInstructionsScreen();
+        break;
+
+    case GameState::PLAY:
+		// Draw map grid
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        for (int y = 0; y <= mapHeight; y += tileSize)
+            for (int x = 0; x <= mapWidth; x += tileSize) {
+                SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
+                SDL_RenderRect(renderer, &tileRect);
+            }
+		// Draw game objects
+        enemyPool.renderAll(renderer, cameraX, cameraY);
+        enemyPool.renderEnemyBullets(renderer, cameraX, cameraY);
+        survivorPool.renderAll(renderer, cameraX, cameraY);
+        player.render(renderer, cameraX, cameraY);
+        DrawHUD(renderer, font, round, score, enemyPool, survivorPool, player, windowWidth, windowHeight);
+        break;
+
+    case GameState::GAMEOVER:
+        renderGameOverScreen();
+        break;
+    }
 
     SDL_RenderPresent(renderer);
 }
+
 
 void Game::startNewRound() {
     std::cout << "\n=== Starting Round " << round << " ===\n";
@@ -222,4 +282,48 @@ void Game::checkRoundProgression() {
 			startNewRound();
 		}
 	}
+}
+
+void Game::drawText(const char* msg, float x, float y, SDL_Color colour)
+{
+    if (!font) return;
+
+    SDL_Surface* surface = TTF_RenderText_Solid(font, msg, (int)std::strlen(msg), colour);
+    if (!surface) return;
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FRect dst = { x, y, (float)surface->w, (float)surface->h };
+    SDL_RenderTexture(renderer, texture, nullptr, &dst);
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroySurface(surface);
+}
+
+void Game::renderStartScreen()
+{
+    SDL_Color white = { 255,255,255,255 };
+    drawText("TOP-DOWN SURVIVOR", 80, 120, white);
+    drawText("Press SPACE to view controls", 80, 180, white);
+}
+
+void Game::renderInstructionsScreen()
+{
+    SDL_Color white = { 255,255,255,255 };
+    drawText("CONTROLS:", 80, 80, white);
+    drawText("WASD / Arrows: move", 80, 120, white);
+    drawText("Mouse aims, SPACE shoots", 80, 150, white);
+    drawText("Rescue PURPLE survivors to gain health/size", 80, 190, white);
+    drawText("GREEN = runners, BLUE = shooters", 80, 220, white);
+    drawText("Press ENTER to begin", 80, 270, white);
+}
+
+void Game::renderGameOverScreen()
+{
+    SDL_Color white = { 255,255,255,255 };
+    drawText("GAME OVER", 80, 120, white);
+
+    std::string scoreLine = "Final score: " + std::to_string(score);
+    drawText(scoreLine.c_str(), 80, 160, white);
+
+    drawText("Press R to return to start", 80, 200, white);
 }

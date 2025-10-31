@@ -139,3 +139,9 @@ void Player::increaseSize(float scaleFactor)
 	rect.x = centerX - rect.w / 2.0f;
 	rect.y = centerY - rect.h / 2.0f;
 }
+
+void Player::reset() {
+	rect.x = (4000 - rect.w) / 2.0f;
+	rect.y = (4000 - rect.h) / 2.0f;
+	health = 5; 
+}
