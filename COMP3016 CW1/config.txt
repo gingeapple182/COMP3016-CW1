@@ -21,5 +21,8 @@ survivor_size_increase=1.05
 round_enemy_increase=3
 
 -- Notes for reader --
-# varaiables must be lowercase and use _ to separate words
-# Section names must be uppercase and enclosed in square brackets
+# Headers MUST be in uppercase and in square brackets
+# varaiables must be lowercase and use _ to separate words and use = to assign values
+# Unknown variables will be ignored by the program
+# Comments start with -- or # and can be on their own line or at the end of a line
+# No validation is done on variables, so ensure they are not unreasonably different to current values
