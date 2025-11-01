@@ -36,6 +36,14 @@ public:
     int enemyRunnerDamage;
 	float enemyShooterSpeed;
 	int enemyShooterDamage;
+	// World config
+    int mapWidth;
+	int mapHeight;
+	int tileSize;
+	int survivorSpawnCount;
+	int survivorHealAmount;
+    float survivorSizeIncrease;
+    int roundEnemyIncrease;
 
 private:
 	GameState state = GameState::START;
@@ -55,9 +63,9 @@ private:
     int windowWidth;
     int windowHeight;
 
-    const int mapWidth = 4000;
-    const int mapHeight = 4000;
-    int tileSize = 50;
+    //const int mapWidth = 4000;
+    //const int mapHeight = 4000;
+    //int tileSize = 50;
 
     Player player;
     EnemyPool enemyPool;

@@ -28,6 +28,7 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 
 	loadConfig();
 
+	player.setWorldBounds(mapWidth, mapHeight);
 	float startX = (mapWidth - playerStartWidth) / 2.0f;
 	float startY = (mapHeight - playerStartHeight) / 2.0f;
     player.applyConfig(startX, startY, playerStartWidth, playerStartHeight, playerStartSpeed, playerStartHealth);
@@ -78,16 +79,35 @@ void Game::loadConfig() {
                     playerStartSpeed = std::stof(value);
             
 		    // Parse ENEMY section
-			} else if (section == "ENEMY") {
-				std::cout << "Key = " << key << ", Value=" << value << "\n";
+            }
+            else if (section == "ENEMY") {
+                std::cout << "Key = " << key << ", Value=" << value << "\n";
                 if (key == "runner_speed")
-					enemyRunnerSpeed = std::stof(value);
-				else if (key == "runner_damage")
-					enemyRunnerDamage = std::stoi(value);
-				else if (key == "shooter_speed")
-					enemyShooterSpeed = std::stof(value);
-				else if (key == "shooter_damage")
-					enemyShooterDamage = std::stoi(value);
+                    enemyRunnerSpeed = std::stof(value);
+                else if (key == "runner_damage")
+                    enemyRunnerDamage = std::stoi(value);
+                else if (key == "shooter_speed")
+                    enemyShooterSpeed = std::stof(value);
+                else if (key == "shooter_damage")
+                    enemyShooterDamage = std::stoi(value);
+                // Parse WORLD section
+            }
+			else if (section == "WORLD") {
+				std::cout << "Key = " << key << ", Value=" << value << "\n";
+				if (key == "map_width")
+					mapWidth = std::stoi(value);
+				else if (key == "map_height")
+					mapHeight = std::stoi(value);
+				else if (key == "tile_size")
+					tileSize = std::stoi(value);
+				else if (key == "survivor_spawn_count")
+					survivorSpawnCount = std::stoi(value);
+				else if (key == "survivor_heal_amount")
+					survivorHealAmount = std::stoi(value);
+				else if (key == "survivor_size_increase")
+					survivorSizeIncrease = std::stof(value);
+				else if (key == "round_enemy_increase")
+					roundEnemyIncrease = std::stoi(value);
 			}
         }
     }
@@ -103,6 +123,15 @@ void Game::loadConfig() {
 		<< " Runner Damage=" << enemyRunnerDamage
 		<< " Shooter Speed=" << enemyShooterSpeed
 		<< " Shooter Damage=" << enemyShooterDamage << "\n";
+
+	std::cout << "[CONFIG] World values:"
+		<< " Map Width=" << mapWidth
+		<< " Map Height=" << mapHeight
+		<< " Tile Size=" << tileSize
+		<< " Survivor Spawn Count=" << survivorSpawnCount
+		<< " Survivor Heal Amount=" << survivorHealAmount
+		<< " Survivor Size Increase=" << survivorSizeIncrease
+		<< " Round Enemy Increase=" << roundEnemyIncrease << "\n";
 }
 
 static EnemyType pickEnemyType(int round) {
@@ -156,8 +185,9 @@ void Game::spawnEnemies() {
 void Game::spawnSurvivors() {
     const float minSpawnDistance = 400.0f;
     SDL_FPoint playerPos = player.centreWorld();
+	int numSurvivors = 10 + ((round - 1) * roundEnemyIncrease);
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < survivorSpawnCount; ++i) {
         Survivor* survivor = survivorPool.getSurvivor();
         if (survivor) {
             float survivorX, survivorY, dx, dy, distance;
@@ -178,7 +208,7 @@ void Game::spawnSurvivors() {
 void Game::handleCollisions() {
     enemyPool.checkPlayerCollision(player);
 	enemyPool.checkEnemyBulletCollision(player);
-    int rescued = survivorPool.checkPlayerCollision(player);
+	int rescued = survivorPool.checkPlayerCollision(player, survivorHealAmount, survivorSizeIncrease);
 
 	if (rescued > 0) {
 		rescuedSurvivors += rescued;

@@ -33,7 +33,7 @@ void SurvivorPool::renderAll(SDL_Renderer* renderer, float cameraX, float camera
 	}
 }
 
-int SurvivorPool::checkPlayerCollision(Player& player) {
+int SurvivorPool::checkPlayerCollision(Player& player, int healAmount, float sizeIncrease) {
 	int rescuedCount = 0;
 
 	for (auto& survivor : survivors) {
@@ -44,8 +44,8 @@ int SurvivorPool::checkPlayerCollision(Player& player) {
 		// Axis-aligned bounding box (AABB) collision detection
 		if (SDL_HasRectIntersectionFloat(&survivor.getRect(), &player.getRect())) {
 			std::cout << "Player rescued a survivor!" << std::endl;
-			player.health++;
-			player.increaseSize(1.05f);
+			player.health += healAmount;
+			player.increaseSize(sizeIncrease); 
 			rescuedCount++;
 			// Deactivate survivor
 			survivor.deactivate();

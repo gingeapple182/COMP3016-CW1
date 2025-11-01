@@ -10,7 +10,7 @@ public:
 	Survivor* getSurvivor();
 	void updateAll(float deltaTime);
 	void renderAll(SDL_Renderer* renderer, float cameraX, float cameraY);
-	int checkPlayerCollision(Player& player);
+	int checkPlayerCollision(Player& player, int healAmount, float sizeIncrease);
 	int getActiveCount() const;
 
 private:

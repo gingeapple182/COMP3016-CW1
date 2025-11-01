@@ -151,8 +151,15 @@ void Player::increaseSize(float scaleFactor)
 	rect.y = centerY - rect.h / 2.0f;
 }
 
+void Player::setWorldBounds(int worldW, int worldH)
+{
+	worldWidth = worldW;
+	worldHeight = worldH;
+}
+
 void Player::reset() {
-	rect.x = (4000 - rect.w) / 2.0f;
-	rect.y = (4000 - rect.h) / 2.0f;
+	rect.x = (worldWidth - rect.w) / 2.0f;
+	rect.y = (worldHeight - rect.h) / 2.0f;
 	health = baseHealth; 
 }
+

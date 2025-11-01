@@ -11,6 +11,14 @@ runner_damage=2
 shooter_speed=10
 shooter_damage=1
 
+[WORLD]
+map_width=4000
+map_height=3000
+tile_size=50
+survivor_spawn_count=5
+survivor_heal_amount=1
+survivor_size_increase=1.05
+round_enemy_increase=3
 
 -- Notes for reader --
 # varaiables must be lowercase and use _ to separate words
