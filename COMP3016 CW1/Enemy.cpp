@@ -11,7 +11,7 @@ Enemy::Enemy()
 }
 
 void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, EnemyType enemyType)
-{
+{	
 	x = startX;
 	y = startY;
 	speed = enemySpeed;
@@ -78,7 +78,7 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool
 				if (bullet) {
 					bullet->init(x, y, dx, dy, ShooterShootySpeed);
 				}
-				shooterCooldown = 15.0f;
+				shooterCooldown = shooterCooldownReset;
 			}
 		}
 		else {
@@ -92,7 +92,7 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool
 				if (bullet) {
 					bullet->init(x, y, dx, dy, ShooterShootySpeed);
 				}
-				shooterCooldown = 15.0f;
+				shooterCooldown = shooterCooldownReset;
 			}
 		}
 		break;

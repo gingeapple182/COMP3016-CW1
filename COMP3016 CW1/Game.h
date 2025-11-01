@@ -25,10 +25,17 @@ public:
 	void endRound();
 	void checkRoundProgression();
 
+	// Config parameters
+    // Player config
     int playerStartHealth;
     float playerStartWidth;
     float playerStartHeight;
     float playerStartSpeed;
+	// Enemy config
+    float enemyRunnerSpeed;
+    int enemyRunnerDamage;
+	float enemyShooterSpeed;
+	int enemyShooterDamage;
 
 private:
 	GameState state = GameState::START;

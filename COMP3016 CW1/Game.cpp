@@ -55,11 +55,17 @@ void Game::loadConfig() {
             continue;
         }
 
-        if (line.rfind('--', 0) == 0) break;
+        if (line.rfind('--', 0) == 0) {
+			std::cout << "[CONFIG] Stop marker found, ending parse.\n";
+            break;
+        }
 
         std::istringstream iss(line);
         std::string key, value;
+
+        // Parse cofig settings
         if (std::getline(iss, key, '=') && std::getline(iss, value)) {
+			// Parse PLAYER section
             if (section == "PLAYER") {
                 std::cout << "Key = " << key << ", Value=" << value << "\n";
                 if (key == "start_health")
@@ -70,7 +76,19 @@ void Game::loadConfig() {
                     playerStartHeight = std::stof(value);
                 else if (key == "start_speed")
                     playerStartSpeed = std::stof(value);
-            }
+            
+		    // Parse ENEMY section
+			} else if (section == "ENEMY") {
+				std::cout << "Key = " << key << ", Value=" << value << "\n";
+                if (key == "runner_speed")
+					enemyRunnerSpeed = std::stof(value);
+				else if (key == "runner_damage")
+					enemyRunnerDamage = std::stoi(value);
+				else if (key == "shooter_speed")
+					enemyShooterSpeed = std::stof(value);
+				else if (key == "shooter_damage")
+					enemyShooterDamage = std::stoi(value);
+			}
         }
     }
 
@@ -79,6 +97,12 @@ void Game::loadConfig() {
         << " Width=" << playerStartWidth
         << " Height=" << playerStartHeight
         << " Speed=" << playerStartSpeed << "\n";
+
+	std::cout << "[CONFIG] Enemy values:"
+		<< " Runner Speed=" << enemyRunnerSpeed
+		<< " Runner Damage=" << enemyRunnerDamage
+		<< " Shooter Speed=" << enemyShooterSpeed
+		<< " Shooter Damage=" << enemyShooterDamage << "\n";
 }
 
 static EnemyType pickEnemyType(int round) {
@@ -115,7 +139,15 @@ void Game::spawnEnemies() {
                 distance = std::sqrt(dx * dx + dy * dy);
             } while (distance < minSpawnDistance);
 			EnemyType type = pickEnemyType(round);
-            enemy->init(enemyX, enemyY, 15.0f, 1, type);
+			if (type == EnemyType::Runner) {
+				enemy->init(enemyX, enemyY, enemyRunnerSpeed, enemyRunnerDamage, type); 
+			}
+			else if (type == EnemyType::Shooter) {
+				enemy->init(enemyX, enemyY, enemyShooterSpeed, enemyShooterDamage, type);
+            }
+            else {
+                enemy->init(enemyX, enemyY, enemyShooterSpeed, enemyShooterDamage, type);
+            }
         }
     }
 }
@@ -299,7 +331,15 @@ void Game::startNewRound() {
 		} while (distance < minSpawnDistance);
 
 		EnemyType type = pickEnemyType(round);
-		enemy->init(enemyX, enemyY, 15.0f, 2, type);
+        if (type == EnemyType::Runner) {
+			enemy->init(enemyX, enemyY, enemyRunnerSpeed, enemyRunnerDamage, type);
+		}
+        else if (type == EnemyType::Shooter) {
+			enemy->init(enemyX, enemyY, enemyShooterSpeed, enemyShooterDamage, type);
+        }
+		else {
+			enemy->init(enemyX, enemyY, enemyShooterSpeed, enemyShooterDamage, type);
+		}
     }
 
     // Spawn survivors (always 5)

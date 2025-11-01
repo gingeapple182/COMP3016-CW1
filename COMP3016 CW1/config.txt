@@ -1,8 +1,16 @@
 [PLAYER]
 start_health=5
-start_width=28
-start_height=28
+start_width=32
+start_height=32
 start_speed=5
+
+[ENEMY]
+runner_speed=12
+runner_damage=2
+
+shooter_speed=10
+shooter_damage=1
+
 
 -- Notes for reader --
 # varaiables must be lowercase and use _ to separate words

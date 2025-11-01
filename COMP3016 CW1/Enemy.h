@@ -14,7 +14,7 @@ public:
 
 	EnemyType type; 
 
-	void init(float startX, float startY, float enemySpeed, int enemyDamage, EnemyType enemyType = EnemyType::Runner);
+	void init(float startX, float startY, float enemySpeed, int enemyDamage, EnemyType enemyType);
 	void update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool& enemyBullets);
 	void render(SDL_Renderer* renderer, float cameraX, float cameraY);
 	void deactivate();
@@ -38,5 +38,6 @@ private:
 	float baseSpeed = 10.0f;
 	bool isShooterShooting = false;
 	float shooterCooldown = 0.0f;
+	float shooterCooldownReset = 15.0f;
 	float ShooterShootySpeed = 50.0f;
 };
