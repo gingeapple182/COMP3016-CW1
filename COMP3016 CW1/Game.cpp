@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "HUD.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
@@ -14,7 +16,7 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
     windowHeight(windowHeight),
     enemyPool(10),
     survivorPool(5),
-    player((4000 - 50) / 2.0f, (4000 - 50) / 2.0f, 40.0f, 40.0f, 5.0f),
+    player(0, 0, 40.0f, 40.0f, 5.0f),
     score(0),
     round(1),
     running(true),
@@ -23,10 +25,61 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 	state(GameState::START)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
+
+	loadConfig();
+
+	float startX = (mapWidth - playerStartWidth) / 2.0f;
+	float startY = (mapHeight - playerStartHeight) / 2.0f;
+    player.applyConfig(startX, startY, playerStartWidth, playerStartHeight, playerStartSpeed, playerStartHealth);
 }
 
 // Game manager destructor
 Game::~Game() = default;
+
+void Game::loadConfig() {
+	std::ifstream configFile("config.txt");
+	if (!configFile.is_open()) {
+		std::cerr << "Failed to open config.txt\n";
+		return;
+	}
+
+	std::cout << "Loading config from config.txt\n";
+
+    std::string line, section;
+    while (std::getline(configFile, line)) {
+        if (line.empty() || line[0] == '#') continue;
+
+        if (line.front() == '[' && line.back() == ']') {
+            section = line.substr(1, line.size() - 2);
+            std::cout << "[CONFIG] Section: " << section << "\n";
+            continue;
+        }
+
+        if (line.rfind('--', 0) == 0) break;
+
+        std::istringstream iss(line);
+        std::string key, value;
+        if (std::getline(iss, key, '=') && std::getline(iss, value)) {
+            if (section == "PLAYER") {
+                std::cout << "Key = " << key << ", Value=" << value << "\n";
+                if (key == "start_health")
+                    playerStartHealth = std::stoi(value);
+                else if (key == "start_width")
+                    playerStartWidth = std::stof(value);
+                else if (key == "start_height")
+                    playerStartHeight = std::stof(value);
+                else if (key == "start_speed")
+                    playerStartSpeed = std::stof(value);
+            }
+        }
+    }
+
+    std::cout << "[CONFIG] Final values:"
+        << " Health=" << playerStartHealth
+        << " Width=" << playerStartWidth
+        << " Height=" << playerStartHeight
+        << " Speed=" << playerStartSpeed << "\n";
+}
 
 static EnemyType pickEnemyType(int round) {
     if (round < 5)
@@ -62,7 +115,7 @@ void Game::spawnEnemies() {
                 distance = std::sqrt(dx * dx + dy * dy);
             } while (distance < minSpawnDistance);
 			EnemyType type = pickEnemyType(round);
-            enemy->init(enemyX, enemyY, 15.0f, 2, type);
+            enemy->init(enemyX, enemyY, 15.0f, 1, type);
         }
     }
 }

@@ -6,11 +6,11 @@ class Player {
 public:
 	Player(float x, float y, float w, float h, float speedPerFrame);
 
-	int health = 5;
-
 	void update(int mapWidth, int mapHeight, float deltaTime);
 
 	void render(SDL_Renderer* renderer, float cameraX, float cameraY);
+
+	int health;
 
 	SDL_FPoint centreWorld() const;
 
@@ -40,8 +40,12 @@ public:
 
 	void reset();
 
+	void applyConfig(float x, float y, float w, float h, float moveSpeed, int startHealth);
+
 private:
 	SDL_FRect rect;
+	//int health;
+	int baseHealth;
 	float speed;
 	float angle = 0.0f; // Facing right initially
 	SDL_Color colour = { 241, 90, 34, 255 };

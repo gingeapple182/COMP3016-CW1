@@ -157,6 +157,9 @@
     <ClInclude Include="Survivor.h" />
     <ClInclude Include="SurvivorPool.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="config.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

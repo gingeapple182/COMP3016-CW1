@@ -1,0 +1,9 @@
+[PLAYER]
+start_health=5
+start_width=28
+start_height=28
+start_speed=5
+
+-- Notes for reader --
+# varaiables must be lowercase and use _ to separate words
+# Section names must be uppercase and enclosed in square brackets

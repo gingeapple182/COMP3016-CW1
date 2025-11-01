@@ -25,6 +25,11 @@ public:
 	void endRound();
 	void checkRoundProgression();
 
+    int playerStartHealth;
+    float playerStartWidth;
+    float playerStartHeight;
+    float playerStartSpeed;
+
 private:
 	GameState state = GameState::START;
 
@@ -63,4 +68,6 @@ private:
 
     float cameraX;
     float cameraY;
+
+    void loadConfig();
 };

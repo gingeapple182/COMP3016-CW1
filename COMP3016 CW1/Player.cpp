@@ -17,6 +17,17 @@ Player::Player(float x, float y, float w, float h, float speedPerFrame)
 	rect.h = h;
 }
 
+void Player::applyConfig(float x, float y, float w, float h, float moveSpeed, int startHealth)
+{
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	speed = moveSpeed;
+	health = startHealth;
+	baseHealth = startHealth;
+}
+
 void Player::update(int mapWidth, int mapHeight, float deltaTime)
 {
 	// Handle keyboard input
@@ -143,5 +154,5 @@ void Player::increaseSize(float scaleFactor)
 void Player::reset() {
 	rect.x = (4000 - rect.w) / 2.0f;
 	rect.y = (4000 - rect.h) / 2.0f;
-	health = 5; 
+	health = baseHealth; 
 }
