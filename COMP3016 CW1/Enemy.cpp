@@ -76,7 +76,8 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool
 			if (shooterCooldown <= 0.0f) {
 				Bullet* bullet = enemyBullets.getBullet();
 				if (bullet) {
-					bullet->init(x, y, dx, dy, ShooterShootySpeed);
+					SDL_Color bulletColour = { 0, 128, 255, 255 };
+					bullet->init(x, y, dx, dy, ShooterShootySpeed, bulletColour);
 				}
 				shooterCooldown = shooterCooldownReset;
 			}
@@ -90,7 +91,8 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool
 			if (shooterCooldown <= 0.0f) {
 				Bullet* bullet = enemyBullets.getBullet();
 				if (bullet) {
-					bullet->init(x, y, dx, dy, ShooterShootySpeed);
+					SDL_Color bulletColour = { 0, 128, 255, 255 };
+					bullet->init(x, y, dx, dy, ShooterShootySpeed, bulletColour);
 				}
 				shooterCooldown = shooterCooldownReset;
 			}

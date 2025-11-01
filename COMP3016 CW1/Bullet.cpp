@@ -8,7 +8,7 @@ Bullet::Bullet()
 	rect = { 0, 0, 8, 8 }; // Bullet size 8x8
 }
 
-void Bullet::init(float startX, float startY, float directionX, float directionY, float bulletSpeed)
+void Bullet::init(float startX, float startY, float directionX, float directionY, float bulletSpeed, SDL_Color col)
 {
 	x = startX;
 	y = startY;
@@ -16,6 +16,7 @@ void Bullet::init(float startX, float startY, float directionX, float directionY
 	dy = directionY;
 	speed = bulletSpeed;
 	active = true;
+	colour = col;
 }
 
 void Bullet::update(float deltaTime)
@@ -51,7 +52,7 @@ void Bullet::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	};
 
 	// Draw bullet
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
 	SDL_RenderFillRect(renderer, &screenRect);
 }
 

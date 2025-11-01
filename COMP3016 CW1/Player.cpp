@@ -55,7 +55,8 @@ void Player::update(int mapWidth, int mapHeight, float deltaTime)
 		
 		Bullet* bullet = bulletPool.getBullet();
 		if (bullet) {
-			bullet->init(center.x, center.y, dir.x, dir.y, 600.0f);
+			SDL_Color playerBulletColor = { 255, 215, 0, 255 };
+			bullet->init(center.x, center.y, dir.x, dir.y, 600.0f, playerBulletColor);
 		}
 
 		shootCooldown = 0.1f;

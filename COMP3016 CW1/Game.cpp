@@ -308,7 +308,7 @@ void Game::render()
 
     case GameState::PLAY:
 		// Draw map grid
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 50, 100, 50, 255);
         for (int y = 0; y <= mapHeight; y += tileSize)
             for (int x = 0; x <= mapWidth; x += tileSize) {
                 SDL_FRect tileRect = { x - cameraX, y - cameraY, (float)tileSize, (float)tileSize };
@@ -372,8 +372,8 @@ void Game::startNewRound() {
 		}
     }
 
-    // Spawn survivors (always 5)
-    for (int i = 0; i < 5; ++i) {
+    // Spawn survivors 
+    for (int i = 0; i < survivorSpawnCount; ++i) {
         Survivor* survivor = survivorPool.getSurvivor();
         if (survivor) {
             float sx = static_cast<float>(rand() % (mapWidth - 50));
@@ -427,29 +427,43 @@ void Game::drawText(const char* msg, float x, float y, SDL_Color colour)
 void Game::renderStartScreen()
 {
     SDL_Color white = { 255,255,255,255 };
-	float widthAllign = windowWidth * 0.35f;
-    drawText("TOP-DOWN SURVIVOR", widthAllign, windowHeight * 0.33f, white);
-    drawText("Press SPACE to view controls", widthAllign, windowHeight * 0.66f, white);
+	SDL_Color grey = { 200, 200, 200, 255 };
+	SDL_Color cyan = { 0, 255, 200, 255 };
+    SDL_Color box = { 50, 50, 50, 255 };
+    float widthAllign = windowWidth * 0.25f;
+    SDL_FRect boxRect = {
+        widthAllign - 30.0f, windowHeight * 0.30f - 10.0f, 500.0f, 80.0f
+    };
+    SDL_SetRenderDrawColor(renderer, box.r, box.g, box.b, box.a);
+    SDL_RenderFillRect(renderer, &boxRect);
+
+    drawText("SURVIVOR PROTOCOL", widthAllign, windowHeight * 0.33f, cyan);
+    drawText("Recover survivors. Avoid extermination.", widthAllign, windowHeight * 0.43f, white);
+    drawText("Press SPACE to view mission briefing", widthAllign, windowHeight * 0.66f, grey);
 }
 
 void Game::renderInstructionsScreen()
 {
     SDL_Color white = { 255,255,255,255 };
+	SDL_Color grey = { 200, 200, 200, 255 };
+	SDL_Color teal = { 0, 200, 200, 255 };
     float widthAlign = windowWidth * 0.20f;
-	float iconAlign = widthAlign - 60.0f;
+    float iconAlign = widthAlign - 60.0f;
     float conceptY = windowHeight * 0.15f;
-    float detailsY = windowHeight * 0.30f;
-	float rectSize = 30.0f;
+    float detailsY = windowHeight * 0.35f;
+    float rectSize = 30.0f;
 
-    drawText("Survive waves of enemies and rescue survivors", widthAlign, conceptY, white);
-    drawText("to increase your health but also your SIZE!", widthAlign, conceptY + 30, white);
+    drawText("MISSION BRIEFING:", widthAlign, conceptY, white);
+    drawText("You are the last active rescue unit.", widthAlign, conceptY + 30, teal);
+    drawText("Recover survivors and neutralise threats.", widthAlign, conceptY + 60, teal);
+    drawText("Each round intensifies — stay operational.", widthAlign, conceptY + 90, teal);
 
     drawText("CONTROLS:", widthAlign, detailsY, white);
     drawText("WASD / Arrows - Move", widthAlign, detailsY + 30, white);
     drawText("Mouse aims, SPACE shoots", widthAlign, detailsY + 60, white);
 
     drawText("ENTITY GUIDE:", widthAlign, detailsY + 110, white);
-    drawText("[Survivor] - Rescue them to gain health and size", widthAlign, detailsY + 140, white);
+    drawText("[Survivor] - Rescue to gain hp but increase in size", widthAlign, detailsY + 140, white);
     SDL_SetRenderDrawColor(renderer, 200, 0, 200, 255); // purple
     SDL_FRect survivorRect = { iconAlign, detailsY + 140, rectSize, rectSize };
     SDL_RenderFillRect(renderer, &survivorRect);
@@ -462,60 +476,68 @@ void Game::renderInstructionsScreen()
     SDL_FRect shooterRect = { iconAlign, detailsY + 220, rectSize, rectSize };
     SDL_RenderFillRect(renderer, &shooterRect);
 
-    drawText("Press ENTER to begin", widthAlign, windowHeight * 0.80f, white);
+    drawText("Press ENTER to begin protocol", widthAlign, windowHeight * 0.80f, grey);
 }
 
 void Game::renderRoundSummaryOverlay()
 {
     if (roundInProgress) return; // only show between rounds
 
-	// Calculate time left until next round
+    // Calculate time left until next round
     uint64_t currentTime = SDL_GetTicksNS();
     float secondsLeft = (float)(roundDelay - (currentTime - roundEndTime)) / 1000000000.0f;
     if (secondsLeft < 0) secondsLeft = 0;
 
     SDL_Color white = { 255, 255, 255, 255 };
+    SDL_Color cyan = { 0, 255, 200, 255 };
+	SDL_Color yellow = { 255, 210, 0, 255 };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 160);
 
-	// Draw box
+    // Draw box
     SDL_FRect box = {
-        windowWidth * 0.25f,
+        windowWidth * 0.25f, 
         windowHeight * 0.15f,
         windowWidth * 0.5f,
         windowHeight * 0.25f
     };
     SDL_RenderFillRect(renderer, &box);
 
-    float xAlign = windowWidth * 0.30f;
-    float y = windowHeight * 0.20f;
+    float xAlign = windowWidth * 0.27f;
+    float y = windowHeight * 0.22f;
 
-    std::string line1 = "ROUND " + std::to_string(round) + " COMPLETE";
-	std::string line2 = "Enemies defeated: " + std::to_string(roundKills);
+    std::string line0 = "SYSTEM REBOOT IN PROGRESS...";
+    std::string line1 = "SIMULATION " + std::to_string(round) + " COMPLETE";
+    std::string line2 = "Enemies defeated: " + std::to_string(roundKills);
     std::string line3 = "Survivors rescued: " + std::to_string(rescuedSurvivors);
-    std::string line4 = "Next round starting in: " + std::to_string((int)ceil(secondsLeft));
+    std::string line4 = "Next simulation starting in: " + std::to_string((int)ceil(secondsLeft));
 
-	// Draw text
+    // Draw text
+	drawText(line0.c_str(), xAlign, y - 30, cyan);
     drawText(line1.c_str(), xAlign, y, white);
     drawText(line2.c_str(), xAlign, y + 30, white);
     drawText(line3.c_str(), xAlign, y + 60, white);
-    drawText(line4.c_str(), xAlign, y + 90, white);
+    drawText(line4.c_str(), xAlign, y + 90, yellow);
 }
 
 
 void Game::renderGameOverScreen()
 {
     SDL_Color white = { 255,255,255,255 };
-	float widthAllign = windowWidth * 0.35f;
-	float heightCenter = windowHeight * 0.5f;
+	SDL_Color grey = { 200, 200, 200, 255 };
+	SDL_Color red = { 255, 0, 0, 255 };
+    float widthAllign = windowWidth * 0.25f;
+    float heightCenter = windowHeight * 0.5f;
 
-    drawText("GAME OVER", widthAllign, windowHeight * 0.33f, white);
+    drawText("PROTOCOL FAILURE", widthAllign, windowHeight * 0.26f, red);
+	drawText("Entity destroyed. Simulation over.", widthAllign, windowHeight * 0.33f, white);
 
-	std::string roundLine = "Rounds survived: " + std::to_string(round - 1);
-	drawText(roundLine.c_str(), widthAllign, heightCenter - 40, white);
-	std::string killLine = "Total enemies defeated: " + std::to_string(totalKills);
-	drawText(killLine.c_str(), widthAllign, heightCenter, white);
+    std::string roundLine = "Rounds survived: " + std::to_string(round - 1);
+    drawText(roundLine.c_str(), widthAllign, heightCenter - 40, white);
+    std::string killLine = "Total enemies defeated: " + std::to_string(totalKills);
+    drawText(killLine.c_str(), widthAllign, heightCenter, white);
     std::string scoreLine = "Final score: " + std::to_string(score + round - 1);
     drawText(scoreLine.c_str(), widthAllign, heightCenter + 40, white);
 
-    drawText("Press ENTER to return to start", widthAllign, windowHeight * 0.66f, white);
+    drawText("Press ENTER to reboot system", widthAllign, windowHeight * 0.66f, grey);
 }
+

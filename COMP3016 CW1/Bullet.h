@@ -4,7 +4,7 @@
 class Bullet {
 public:
 	Bullet();
-	void init(float startX, float startY, float directionX, float directionY, float bulletSpeed);
+	void init(float startX, float startY, float directionX, float directionY, float bulletSpeed, SDL_Color col);
 	void update(float deltaTime);
 	void render(SDL_Renderer* renderer, float cameraX, float cameraY);
 	void deactivate();
@@ -19,4 +19,5 @@ private:
 	float speed;
 	bool active;
 	SDL_FRect rect;
+	SDL_Color colour;
 };
