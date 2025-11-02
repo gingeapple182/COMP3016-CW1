@@ -12,7 +12,7 @@ This game demonstrates the following:
 - Game state machine (START -> INSTRUCTIONS -> PLAY -> GAMEOVER)
 - A simple narrative objective and theme
 
-# Dependencies used
+## Dependencies used
 This project was built in **C++** using **SDL3** for rendering, input and timing.
 
 | Dependency  | Purpose                                         | Notes                                           |
@@ -24,7 +24,7 @@ This project was built in **C++** using **SDL3** for rendering, input and timing
 > **Runtime note:** the final `.zip` must include the SDL3/SDL_ttf DLLs alongside the executable so it can run without Visual Studio.
 
 
-# Use of AI description
+## Use of AI description
 This assignment is under the **“Partnered Work”** category, so AI use is allowed as long as it is declared.
 
 AI was used **as an assistive tool** for:
@@ -38,7 +38,7 @@ AI was used **as an assistive tool** for:
 Final submitted code has been written by myself, with help from Visual Studio 2022 IDE AI assistant autofill, all autofilled code was reviewed and controlled by myself.
 
 
-# Game programming patterns used
+## Game programming patterns used
 ### 1. Object Pooling
 - Used for **enemies**, **survivors**, and **bullets**.
 - On spawn, the code reuses an inactive object instead of allocating a new one.
@@ -65,7 +65,7 @@ States are handled in `Game::update()` and `Game::render()`:
 - This demonstrates OOP.
 
 
-# Game mechanics and how they were coded
+## Game mechanics and how they were coded
 ### Player
 - **Movement:** `Player::update()` reads keyboard (`SDL_GetKeyboardState`) and moves the rect.
 - **Bounds:** player is clamped to the map size by moving them back into the map bounds when movement would place them out of bounds.
@@ -94,9 +94,9 @@ States are handled in `Game::update()` and `Game::render()`:
 
 
 
-# UML
+## UML
 
-# Sample screenshots
+## Sample screenshots
 Below are a few screenshots taken during gameplay.
 ### Start screen
 ![Start screen](sc/state_start.png)
@@ -115,9 +115,9 @@ Below are a few screenshots taken during gameplay.
 ### Terminal config reading
 ![Terminal config](sc/terminal_config.png)
 
-# Exception handling
+## Exception handling
 
-# Further details
+## Further details
 
 - Rendering is deliberately simple (rects and colours) to make logic visible.
 - Colours are consistent:
@@ -129,4 +129,34 @@ Below are a few screenshots taken during gameplay.
 - Config file ends with a `-- Notes for reader --` stop marker so comments don’t break parsing.
 
 
-# Evaluaion
+## Evaluaion
+I sucessfully produced a playable, 2D top down bullet hell written in C++ and SDL3.
+I have demonstrated OOP principles, Object pooling principles and the use of classes and a state machine. I also wa sable to successfully read data from a config.txt file handling game variables.
+
+### Achievements
+- Functional and stable game loop using a state machine (START, INSTRUCTIONS, PLAY and GAMEOVER)
+- OOP structure - Using encapsulated classes for `Game`, `Player`, `Enemy`, `Survivor` etc and respective object pools
+- Object pooling for efficient bullet, enemy and survivor resuse rather than creation/destruction
+- Reading from a config file, handling game variables for such as map size, enemy damage and player stats
+- Escalating difficulty round system for challenging gameplay
+- A light narrative theme providing context and interest to the game
+
+Overall I managed to achieve a functional and replayable 2D bullet hell game in C++ that meets the specified requirements.
+
+### What i would improve on
+- Implement powerups and buffs to enhance gameplay and encourage replayability
+- Write to a high score .txt file for comparison of high scores
+- Add sound effects to enhance gameplay immersion
+- Create assets for game objects like player, enemies and survivors
+- Expand config input to handle more complex operations
+- Add pause functionality and in game settings
+
+Overall, the current version achieves its core design objectives, and future iterations would focus on gameplay depth rather than refactoring for code readability.
+
+### Where i made msitakes
+- Underestimating time for gameplay tuning and testing, features that looked to be simple often took a lot more fine tuning
+- Poor planning - I had to refactor my codebase structure for some features, costing time with no immediate benefit from it - in future i would plan out the core structure before building code
+- Setup issues - Difficulty in setting up and learning SDL3 to work effectively in the project
+
+This project involved a steep learning curve and several technical challenges that helped build better understanding of good coding practices and the value of proper planning
+
