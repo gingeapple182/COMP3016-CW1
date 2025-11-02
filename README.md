@@ -97,6 +97,23 @@ States are handled in `Game::update()` and `Game::render()`:
 # UML
 
 # Sample screenshots
+Below are a few screenshots taken during gameplay.
+### Start screen
+![Start screen](sc/state_start.png)
+
+### Instructions
+![Instructions](sc/state_instruction.png)
+
+### Play and round summary
+![Runner enemies](sc/state_play_0.png)
+![Round summary](sc/state_play_1.png)
+![Shooter enemies](sc/state_play_2.png)
+
+### Game over
+![Game over](sc/state_gameover.png)
+
+### Terminal config reading
+![Terminal config](sc/terminal_config.png)
 
 # Exception handling
 
