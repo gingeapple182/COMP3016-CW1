@@ -9,9 +9,21 @@
 enum class GameState {
     START,
     INSTRUCTIONS,
+    SCORES,
     PLAY,
     GAMEOVER
 };
+
+struct HighScores {
+    std::string name;
+    int round;
+    int kills;
+    int survivors;
+	int score;
+};
+
+extern std::vector<HighScores> highScores;
+extern const int MAX_HIGH_SCORES;
 
 class Game {
 public:
@@ -53,6 +65,7 @@ private:
     void handleCollisions();
 
 	void renderStartScreen();
+	void renderScoresScreen();
 	void renderInstructionsScreen();
 	void renderRoundSummaryOverlay();
 	void renderGameOverScreen();
@@ -62,10 +75,6 @@ private:
     TTF_Font* font;
     int windowWidth;
     int windowHeight;
-
-    //const int mapWidth = 4000;
-    //const int mapHeight = 4000;
-    //int tileSize = 50;
 
     Player player;
     EnemyPool enemyPool;
@@ -85,4 +94,5 @@ private:
     float cameraY;
 
     void loadConfig();
+    void loadScores();
 };

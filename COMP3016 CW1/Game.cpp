@@ -7,6 +7,8 @@
 #include <ctime>
 #include <cmath>
 
+std::vector<HighScores> highScores;
+const int MAX_HIGH_SCORES = 5;
 
 // Game manager constructor
 Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHeight)
@@ -27,6 +29,7 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
     srand(static_cast<unsigned int>(time(nullptr)));
 
 	loadConfig();
+    loadScores();
 
 	player.setWorldBounds(mapWidth, mapHeight);
 	float startX = (mapWidth - playerStartWidth) / 2.0f;
@@ -134,6 +137,29 @@ void Game::loadConfig() {
 		<< " Round Enemy Increase=" << roundEnemyIncrease << "\n";
 }
 
+void Game::loadScores() {
+    std::ifstream scoreFile("scores.txt");
+    if (!scoreFile.is_open()) {
+        std::cerr << "Failed to open scores.txt\n";
+        return;
+    }
+
+    std::cout << "Loading high scores from scores.txt\n";
+
+	highScores.clear();
+	HighScores scoreEntry;
+	while (scoreFile >> scoreEntry.name >> scoreEntry.round >> scoreEntry.kills >> scoreEntry.survivors >> scoreEntry.score) {
+		highScores.push_back(scoreEntry);
+		if (highScores.size() >= MAX_HIGH_SCORES) {
+			break;
+		}
+	}
+
+	scoreFile.close();
+	std::cout << "Loaded " << highScores.size() << " high scores.\n";
+	
+}
+
 static EnemyType pickEnemyType(int round) {
     if (round < 5)
         return EnemyType::Runner;
@@ -231,11 +257,18 @@ void Game::update(float dt)
     switch (state)
     {
     case GameState::START:
-        // Press SPACE to go to instructions
+        // Press SPACE to go to instructions, H to go to scores
         if (keys[SDL_SCANCODE_SPACE])
             state = GameState::INSTRUCTIONS;
+		else if (keys[SDL_SCANCODE_H])
+			state = GameState::SCORES;
         return;
-
+    case GameState::SCORES:
+		// Press ENTER to return to start
+		if (keys[SDL_SCANCODE_RETURN]) {
+			state = GameState::START;
+		}
+		return;
     case GameState::INSTRUCTIONS:
         // Press ENTER to begin game
         if (keys[SDL_SCANCODE_RETURN]) {
@@ -301,6 +334,10 @@ void Game::render()
     case GameState::START:
         renderStartScreen();
         break;
+
+	case GameState::SCORES:
+		renderScoresScreen();
+		break;
 
     case GameState::INSTRUCTIONS:
         renderInstructionsScreen();
@@ -440,6 +477,38 @@ void Game::renderStartScreen()
     drawText("SURVIVOR PROTOCOL", widthAllign, windowHeight * 0.33f, cyan);
     drawText("Recover survivors. Avoid extermination.", widthAllign, windowHeight * 0.43f, white);
     drawText("Press SPACE to view mission briefing", widthAllign, windowHeight * 0.66f, grey);
+	drawText("Press H to view high scores", widthAllign, windowHeight * 0.73f, grey);
+}
+
+void Game::renderScoresScreen() {
+	SDL_Color white = { 255,255,255,255 };
+	SDL_Color grey = { 200, 200, 200, 255 };
+	SDL_Color cyan = { 0, 255, 200, 255 };
+	SDL_Color yellow = { 255, 210, 0, 255 };
+
+	float widthAlign = windowWidth * 0.2f;
+	float startY = windowHeight * 0.2f;
+	float lineHeight = 30.0f;
+
+	drawText("HIGH SCORES:", widthAlign, startY, white);
+    drawText("NAME     | ROUND | KILLS | SURVIVORS | SCORE", widthAlign, startY + 40, white);
+
+
+    for (size_t i = 0; i < highScores.size(); ++i) {
+        const HighScores& hs = highScores[i];
+        SDL_Color rowColor = (i == 0) ? yellow : grey;
+
+        std::string entry =
+            hs.name + "        |   " +
+            std::to_string(hs.round) + "   |   " +
+            std::to_string(hs.kills) + "   |     " +
+            std::to_string(hs.survivors) + "       |   " +
+            std::to_string(hs.score);
+
+        drawText(entry.c_str(), widthAlign, startY + 80 + (lineHeight * i), rowColor);
+    }
+
+	drawText("Press ENTER to return to main menu", widthAlign, windowHeight * 0.80f, grey);
 }
 
 void Game::renderInstructionsScreen()
