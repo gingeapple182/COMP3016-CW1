@@ -88,6 +88,7 @@ private:
 	int roundKills = 0;
 	int totalKills = 0;
 	int rescuedSurvivors = 0;
+	int totalSurvivors = 0;
     bool running;
 
     float cameraX;

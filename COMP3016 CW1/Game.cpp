@@ -10,6 +10,8 @@
 
 std::vector<HighScores> highScores;
 const int MAX_HIGH_SCORES = 5;
+const int POINTS_PER_ENEMY = 10;
+const int POINTS_PER_SURVIVOR = 50;
 
 // Game manager constructor
 Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHeight)
@@ -40,6 +42,8 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 
 // Game manager destructor
 Game::~Game() = default;
+
+// -- File IO -- //
 
 // Loading config from file
 void Game::loadConfig() {
@@ -204,6 +208,9 @@ void Game::saveScore() {
 	std::cout << "High scores saved to scores.txt\n";
 }
 
+// -- Enemy and Survivor logic -- //
+
+// Pick enemy type based on current round
 static EnemyType pickEnemyType(int round) {
     if (round < 5)
         return EnemyType::Runner;
@@ -274,7 +281,7 @@ void Game::spawnSurvivors() {
     }
 }
 
-// Handles collisions between player, enemies, and survivors
+// Handles collisions between player, enemies, and survivors 
 void Game::handleCollisions() {
     enemyPool.checkPlayerCollision(player);
 	enemyPool.checkEnemyBulletCollision(player);
@@ -282,16 +289,20 @@ void Game::handleCollisions() {
 
 	if (rescued > 0) {
 		rescuedSurvivors += rescued;
+		totalSurvivors += rescued;
+		score += rescued * POINTS_PER_SURVIVOR;
 		std::cout << "Rescued Survivors: " << rescuedSurvivors << " / 5\n";
 	}
     int killed = enemyPool.handleEnemyDeath(player.getBulletPool());
     if (killed > 0) {
-        score += killed;
+		score += killed * POINTS_PER_ENEMY;
 		roundKills += killed;
 		totalKills += killed;
         std::cout << "Score: " << score << "\n";
     }
 }
+
+// -- Main game loop functions -- //
 
 // Updates game state
 void Game::update(float dt)
@@ -342,7 +353,7 @@ void Game::update(float dt)
 
 		// Game over if player is dead
         if (!player.isAlive()) {
-			addScores("PLAYER", round - 1, totalKills, rescuedSurvivors, score + round - 1);
+			addScores("PLAYER", round - 1, totalKills, totalSurvivors, score);
             state = GameState::GAMEOVER;
             return;
         }
@@ -368,6 +379,7 @@ void Game::update(float dt)
     }
 }
 
+// Renders the current game state
 void Game::render()
 {
 	// Clear screen
@@ -414,7 +426,7 @@ void Game::render()
     SDL_RenderPresent(renderer);
 }
 
-
+// -- Round management --
 void Game::startNewRound() {
     std::cout << "\n=== Starting Round " << round << " ===\n";
 
@@ -491,6 +503,9 @@ void Game::checkRoundProgression() {
 	}
 }
 
+// -- Rendering helper functions -- //
+
+// Draws text on the screen at specified position and colour
 void Game::drawText(const char* msg, float x, float y, SDL_Color colour)
 {
     if (!font) return;
@@ -506,6 +521,7 @@ void Game::drawText(const char* msg, float x, float y, SDL_Color colour)
     SDL_DestroySurface(surface);
 }
 
+// Screen rendering functions
 void Game::renderStartScreen()
 {
     SDL_Color white = { 255,255,255,255 };
@@ -633,7 +649,6 @@ void Game::renderRoundSummaryOverlay()
     drawText(line4.c_str(), xAlign, y + 90, yellow);
 }
 
-
 void Game::renderGameOverScreen()
 {
     SDL_Color white = { 255,255,255,255 };
@@ -649,8 +664,10 @@ void Game::renderGameOverScreen()
     drawText(roundLine.c_str(), widthAllign, heightCenter - 40, white);
     std::string killLine = "Total enemies defeated: " + std::to_string(totalKills);
     drawText(killLine.c_str(), widthAllign, heightCenter, white);
-    std::string scoreLine = "Final score: " + std::to_string(score + round - 1);
-    drawText(scoreLine.c_str(), widthAllign, heightCenter + 40, white);
+	std::string survivorLine = "Total survivors rescued: " + std::to_string(totalSurvivors);
+	drawText(survivorLine.c_str(), widthAllign, heightCenter + 40, white);
+    std::string scoreLine = "Final score: " + std::to_string(score);
+    drawText(scoreLine.c_str(), widthAllign, heightCenter + 80, white);
 
     drawText("Press ENTER to reboot system", widthAllign, windowHeight * 0.66f, grey);
 }
