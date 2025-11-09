@@ -95,4 +95,7 @@ private:
 
     void loadConfig();
     void loadScores();
+    void saveScore();
+    void addScores(const std::string& name, int round, int kills, int survivors, int score);
+
 };

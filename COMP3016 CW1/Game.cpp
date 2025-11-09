@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <algorithm>
 
 std::vector<HighScores> highScores;
 const int MAX_HIGH_SCORES = 5;
@@ -40,6 +41,7 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 // Game manager destructor
 Game::~Game() = default;
 
+// Loading config from file
 void Game::loadConfig() {
 	std::ifstream configFile("config.txt");
 	if (!configFile.is_open()) {
@@ -137,6 +139,7 @@ void Game::loadConfig() {
 		<< " Round Enemy Increase=" << roundEnemyIncrease << "\n";
 }
 
+// Loading high scores from file
 void Game::loadScores() {
     std::ifstream scoreFile("scores.txt");
     if (!scoreFile.is_open()) {
@@ -158,6 +161,47 @@ void Game::loadScores() {
 	scoreFile.close();
 	std::cout << "Loaded " << highScores.size() << " high scores.\n";
 	
+}
+
+// Adding a new score entry
+void Game::addScores(const std::string& name, int round, int kills, int survivors, int score) {
+	// Create new score entry
+    HighScores newScoreEntry{ name, round, kills, survivors, score };
+	// Add to high scores list
+    highScores.push_back(newScoreEntry);
+	// Sort high scores in descending order
+	std::sort(highScores.begin(), highScores.end(), [](const HighScores& a, const HighScores& b) {
+		return a.score > b.score;
+	});
+	// Trim to max high scores
+	if (highScores.size() > MAX_HIGH_SCORES) {
+		highScores.resize(MAX_HIGH_SCORES);
+	}
+	// Save updated scores to file
+    saveScore();
+}
+
+// Saving high scores to file
+void Game::saveScore() {
+	// Open file for writing
+	std::ofstream scoreFile("scores.txt", std::ios::trunc);
+	// Error check
+	if (!scoreFile.is_open()) {
+		std::cerr << "Failed to open scores.txt for writing\n";
+		return;
+	}
+
+	// Write each high score entry
+	for (const auto& scoreEntry : highScores) {
+		scoreFile << scoreEntry.name << " "
+			<< scoreEntry.round << " "
+			<< scoreEntry.kills << " "
+			<< scoreEntry.survivors << " "
+			<< scoreEntry.score << "\n";
+	}
+
+	scoreFile.close();
+	std::cout << "High scores saved to scores.txt\n";
 }
 
 static EnemyType pickEnemyType(int round) {
@@ -298,6 +342,7 @@ void Game::update(float dt)
 
 		// Game over if player is dead
         if (!player.isAlive()) {
+			addScores("PLAYER", round - 1, totalKills, rescuedSurvivors, score + round - 1);
             state = GameState::GAMEOVER;
             return;
         }
