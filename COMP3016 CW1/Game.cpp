@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 
+// High scores list
 std::vector<HighScores> highScores;
 const int MAX_HIGH_SCORES = 5;
 const int POINTS_PER_ENEMY = 10;
@@ -29,11 +30,12 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
     cameraY(0.0f),
 	state(GameState::START)
 {
+	// Seed random number generator
     srand(static_cast<unsigned int>(time(nullptr)));
-
+    // Load from files
 	loadConfig();
     loadScores();
-
+	// Apply player config
 	player.setWorldBounds(mapWidth, mapHeight);
 	float startX = (mapWidth - playerStartWidth) / 2.0f;
 	float startY = (mapHeight - playerStartHeight) / 2.0f;

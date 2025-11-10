@@ -8,6 +8,7 @@ enum class EnemyType {
 	Shooter,
 	Sniper
 };
+
 class Enemy {
 public:
 	Enemy();
