@@ -12,16 +12,34 @@ This game demonstrates the following:
 - Game state machine (SCORES <- START -> INSTRUCTIONS -> PLAY -> GAMEOVER)
 - A simple narrative objective and theme
 
-## Dependencies used
+## Dependencies used  
 This project was built in **C++** using **SDL3** for rendering, input and timing.
 
-| Dependency  | Purpose                                         | Notes                                           |
-|-------------|--------------------------------------------------|-------------------------------------------------|
-| **SDL3**    | Window creation, renderer, input, timing         | Core library, required at runtime               |
-| **SDL_ttf** | Text rendering for UI and in-game overlays       | Used for start screen, HUD, round summary, etc. |
-| **C++ STL** | `vector`, `string`, file I/O, `cmath`, `<chrono>` | No C-style arrays or `char*` used where avoidable |
+| Dependency      | Purpose                                         | Notes                                                                 |
+|-----------------|--------------------------------------------------|-----------------------------------------------------------------------|
+| **SDL3**        | Window creation, renderer, input, timing         | Core runtime dependency — included in the zip as `SDL3.dll`.          |
+| **SDL_ttf**     | Text rendering for UI and in-game overlays       | Included in the zip as `SDL3_ttf.dll`.                                |
+| **Pixellari.ttf** | Custom pixel-style font for text rendering      | Bundled with the project and loaded at runtime.                       |
+| **C++ STL**     | `vector`, `string`, file I/O, `cmath`, `<chrono>` | Used for all data management and logic; no C-style arrays or `char*`. |
 
-> **Runtime note:** the final `.zip` must include the SDL3/SDL_ttf DLLs alongside the executable so it can run without Visual Studio.
+---
+
+## How to Run the Game
+
+1. **Extract the .zip file** (`OliverCole_COMP3016_CW1.zip`) to any folder on your computer.  
+2. Inside the extracted folder, you’ll find:
+   - `COMP3016_CW1.exe`  
+   - `SDL3.dll`  
+   - `SDL3_ttf.dll`  
+   - `Pixellari.ttf`  
+   - `config.txt` and `scores.txt`
+   - `COMP3016_Cw1_Oliver_Cole.txt`
+3. **Double-click `COMP3016_CW1.exe`** to launch the game.  
+   - No setup in Visual Studio or installation steps are required.  
+   - The game window will open and can be played immediately.  
+4. To exit the game, simply close the window.  
+
+> *(Optional)* You can edit `config.txt` or `scores.txt` in a text editor to view or modify configuration values or scores — these are read and written by the game at runtime.
 
 
 ## Use of AI description
