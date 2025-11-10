@@ -8,6 +8,7 @@ SurvivorPool::SurvivorPool(size_t poolSize) {
 	survivors.resize(poolSize);
 }
 
+// Get an inactive survivor from the pool
 Survivor* SurvivorPool::getSurvivor() {
 	for (auto& survivor : survivors) {
 		if (!survivor.isActive()) {
@@ -17,6 +18,7 @@ Survivor* SurvivorPool::getSurvivor() {
 	return nullptr; // No available survivor
 }
 
+// Update all active survivors
 void SurvivorPool::updateAll(float deltaTime) {
 	for (auto& survivor : survivors) {
 		if (survivor.isActive()) {
@@ -25,6 +27,7 @@ void SurvivorPool::updateAll(float deltaTime) {
 	}
 }
 
+// Render all active survivors
 void SurvivorPool::renderAll(SDL_Renderer* renderer, float cameraX, float cameraY) {
 	for (auto& survivor : survivors) {
 		if (survivor.isActive()) {
@@ -33,6 +36,7 @@ void SurvivorPool::renderAll(SDL_Renderer* renderer, float cameraX, float camera
 	}
 }
 
+// Handle player rescuing survivors
 int SurvivorPool::checkPlayerCollision(Player& player, int healAmount, float sizeIncrease) {
 	int rescuedCount = 0;
 
@@ -54,6 +58,7 @@ int SurvivorPool::checkPlayerCollision(Player& player, int healAmount, float siz
 	return rescuedCount;
 }
 
+// Get count of active survivors
 int SurvivorPool::getActiveCount() const {
 	int count = 0;
 	for (const auto& survivor : survivors) {

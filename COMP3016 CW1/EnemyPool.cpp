@@ -19,6 +19,7 @@ Enemy* EnemyPool::getEnemy() // Get an inactive enemy from the pool
 	return nullptr; // No available enemy
 }
 
+// Update all active enemies
 void EnemyPool::updateAll(float deltaTime, const SDL_FPoint& playerPosition)
 {
 	for (auto& enemy : enemies) {
@@ -28,6 +29,7 @@ void EnemyPool::updateAll(float deltaTime, const SDL_FPoint& playerPosition)
 	}
 }
 
+// Render all active enemies
 void EnemyPool::renderAll(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	for (auto& enemy : enemies) {
@@ -37,6 +39,7 @@ void EnemyPool::renderAll(SDL_Renderer* renderer, float cameraX, float cameraY)
 	}
 }
 
+// Handle enemy deaths due to player bullets
 int EnemyPool::handleEnemyDeath(BulletPool& bulletPool)
 {
 	int destroyedEnemies = 0;
@@ -67,6 +70,7 @@ int EnemyPool::handleEnemyDeath(BulletPool& bulletPool)
 	return destroyedEnemies;
 }
 
+// Check for collisions between enemies and the player
 bool EnemyPool::checkPlayerCollision(Player& player) {
 	bool collisionDetected = false;
 
@@ -88,6 +92,7 @@ bool EnemyPool::checkPlayerCollision(Player& player) {
 	return collisionDetected;
 }
 
+// Get the count of active enemies
 int EnemyPool::getActiveCount() const
 {
 	int count = 0;
@@ -99,16 +104,19 @@ int EnemyPool::getActiveCount() const
 	return count;
 }
 
+// Enemy bullet management
 void EnemyPool::updateEnemyBullets(float deltaTime)
 {
 	enemyBullets.updateAll(deltaTime);
 }
 
+// Render enemy bullets
 void EnemyPool::renderEnemyBullets(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	enemyBullets.renderAll(renderer, cameraX, cameraY);
 }
 
+// Check for collisions between enemy bullets and the player
 bool EnemyPool::checkEnemyBulletCollision(Player& player)
 {
 	bool hit = false;

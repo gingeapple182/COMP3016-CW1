@@ -5,6 +5,7 @@ BulletPool::BulletPool(size_t poolSize)
 	bullets.resize(poolSize);
 }
 
+// Get an inactive bullet from the pool
 Bullet* BulletPool::getBullet()
 {
 	for (auto& bullet : bullets) {
@@ -15,6 +16,7 @@ Bullet* BulletPool::getBullet()
 	return nullptr; // No available bullet
 }
 
+// Update all active bullets
 void BulletPool::updateAll(float deltaTime)
 {
 	for (auto& bullet : bullets) {
@@ -24,6 +26,7 @@ void BulletPool::updateAll(float deltaTime)
 	}
 }
 
+// Render all active bullets
 void BulletPool::renderAll(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	for (auto& bullet : bullets) {

@@ -43,6 +43,8 @@ Game::Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHe
 // Game manager destructor
 Game::~Game() = default;
 
+
+
 // -- File IO -- //
 
 // Loading config from file
@@ -208,6 +210,8 @@ void Game::saveScore() {
 	std::cout << "High scores saved to scores.txt\n";
 }
 
+
+
 // -- Enemy and Survivor logic -- //
 
 // Pick enemy type based on current round
@@ -301,6 +305,8 @@ void Game::handleCollisions() {
         std::cout << "Score: " << score << "\n";
     }
 }
+
+
 
 // -- Main game loop functions -- //
 
@@ -502,6 +508,8 @@ void Game::checkRoundProgression() {
 		}
 	}
 }
+
+
 
 // -- Rendering helper functions -- //
 

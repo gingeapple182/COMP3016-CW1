@@ -1,5 +1,6 @@
 #include "Survivor.h"
 
+// Survivor class implementation
 Survivor::Survivor()
 	: x(0), y(0), active(false)
 {
@@ -7,6 +8,7 @@ Survivor::Survivor()
 	colour = { 200, 0, 200, 255 }; // purple
 }
 
+// Initialise survivor with position
 void Survivor::init(float startX, float startY)
 {
 	x = startX;
@@ -17,6 +19,7 @@ void Survivor::init(float startX, float startY)
 	rect.y = y - rect.h / 2;
 }
 
+// Update survivor (currently stationary)
 void Survivor::update(float deltaTime)
 {
 	// If not active, do nothing
@@ -25,6 +28,7 @@ void Survivor::update(float deltaTime)
 	// Survivors are stationary for now
 }
 
+// Render survivor
 void Survivor::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	// Dont render if inactive
@@ -43,6 +47,7 @@ void Survivor::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	SDL_RenderFillRect(renderer, &screenRect);
 }
 
+// Deactivate survivor
 void Survivor::deactivate()
 {
 	active = false;

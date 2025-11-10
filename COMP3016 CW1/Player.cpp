@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cmath>
 
-
+// Constructor
 Player::Player(float x, float y, float w, float h, float speedPerFrame)
 	: speed(speedPerFrame)
 { 
@@ -17,6 +17,7 @@ Player::Player(float x, float y, float w, float h, float speedPerFrame)
 	rect.h = h;
 }
 
+// Apply configuration settings to the player
 void Player::applyConfig(float x, float y, float w, float h, float moveSpeed, int startHealth)
 {
 	rect.x = x;
@@ -28,6 +29,7 @@ void Player::applyConfig(float x, float y, float w, float h, float moveSpeed, in
 	baseHealth = startHealth;
 }
 
+// Update player position and handle input
 void Player::update(int mapWidth, int mapHeight, float deltaTime)
 {
 	// Handle keyboard input
@@ -64,6 +66,7 @@ void Player::update(int mapWidth, int mapHeight, float deltaTime)
 	bulletPool.updateAll(1.0f / 60.0f);
 }
 
+// Render the player and its bullets
 void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	// Render bullets before player
@@ -118,12 +121,14 @@ void Player::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
 }
 
+// Get center point of player in world coordinates	
 SDL_FPoint Player::centreWorld() const
 {
 	// Return the center point of the player in world coordinates
 	return { rect.x + rect.w / 2.0f, rect.y + rect.h / 2.0f };
 }
 
+// Get facing direction vector
 SDL_FPoint Player::facingVector() const
 {
 	// Calculate facing direction based on angleRad
@@ -132,6 +137,7 @@ SDL_FPoint Player::facingVector() const
 	return { x, y };
 }
 
+// Apply damage to the player
 void Player::takeDamage(int damage)
 {
 	health -= damage;
@@ -140,6 +146,7 @@ void Player::takeDamage(int damage)
 	std::cout << "Player took " << damage << " damage. Health: " << health << "\n";
 }
 
+// Increase player size by a scale factor
 void Player::increaseSize(float scaleFactor)
 {
 	float centerX = rect.x + rect.w / 2.0f;
@@ -152,12 +159,14 @@ void Player::increaseSize(float scaleFactor)
 	rect.y = centerY - rect.h / 2.0f;
 }
 
+// Set world boundaries for the player
 void Player::setWorldBounds(int worldW, int worldH)
 {
 	worldWidth = worldW;
 	worldHeight = worldH;
 }
 
+// Reset player to starting position and health
 void Player::reset() {
 	rect.x = (worldWidth - rect.w) / 2.0f;
 	rect.y = (worldHeight - rect.h) / 2.0f;

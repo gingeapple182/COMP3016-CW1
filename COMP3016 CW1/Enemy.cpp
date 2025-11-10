@@ -10,6 +10,7 @@ Enemy::Enemy()
 	colour = { 0, 0, 255, 255 }; // blue
 }
 
+// Initialize enemy with position, speed, damage, and type
 void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, EnemyType enemyType)
 {	
 	x = startX;
@@ -30,6 +31,7 @@ void Enemy::init(float startX, float startY, float enemySpeed, int enemyDamage, 
 	rect.y = y - rect.h / 2;
 }
 
+// Update enemy position and behavior based on type
 void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool& enemyBullets)
 {
 	if (!active) return;
@@ -109,6 +111,7 @@ void Enemy::update(float deltaTime, const SDL_FPoint& playerPosition, BulletPool
 	rect.y = y - rect.h / 2;
 }
 
+// Render enemy on screen
 void Enemy::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 {
 	// Dont render if inactive
@@ -127,11 +130,13 @@ void Enemy::render(SDL_Renderer* renderer, float cameraX, float cameraY)
 	SDL_RenderFillRect(renderer, &screenRect);
 }
 
+// Deactivate enemy
 void Enemy::deactivate()
 {
 	active = false;
 }
 
+// Apply default attributes based on enemy type
 void Enemy::applyTypeAttributes()
 {
 	switch (type) {

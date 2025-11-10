@@ -14,6 +14,7 @@ enum class GameState {
     GAMEOVER
 };
 
+// High score structure
 struct HighScores {
     std::string name;
     int round;
@@ -22,9 +23,11 @@ struct HighScores {
 	int score;
 };
 
+// Global high scores vector
 extern std::vector<HighScores> highScores;
 extern const int MAX_HIGH_SCORES;
 
+// Game class
 class Game {
 public:
     Game(SDL_Renderer* renderer, TTF_Font* font, int windowWidth, int windowHeight);
@@ -60,10 +63,12 @@ public:
 private:
 	GameState state = GameState::START;
 
+	// Game methods
     void spawnEnemies();
     void spawnSurvivors();
     void handleCollisions();
 
+	// Rendering methods
 	void renderStartScreen();
 	void renderScoresScreen();
 	void renderInstructionsScreen();
@@ -71,15 +76,18 @@ private:
 	void renderGameOverScreen();
     void drawText(const char* text, float x, float y, SDL_Color color);
 
+	// Game variables
     SDL_Renderer* renderer;
     TTF_Font* font;
     int windowWidth;
     int windowHeight;
 
+	// Game objects
     Player player;
     EnemyPool enemyPool;
     SurvivorPool survivorPool;
 
+	// Game stats
     int score;
     int round = 1;
 	bool roundInProgress = true;
@@ -90,10 +98,11 @@ private:
 	int rescuedSurvivors = 0;
 	int totalSurvivors = 0;
     bool running;
-
+	// Camera position
     float cameraX;
     float cameraY;
 
+	// Configuration and scoring
     void loadConfig();
     void loadScores();
     void saveScore();
