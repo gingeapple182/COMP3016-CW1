@@ -9,7 +9,7 @@ This game demonstrates the following:
 - Object-oriented codebase structure
 - Runtime config loading from a .txt file
 - Object Pooling
-- Game state machine (START -> INSTRUCTIONS -> PLAY -> GAMEOVER)
+- Game state machine (SCORES <- START -> INSTRUCTIONS -> PLAY -> GAMEOVER)
 - A simple narrative objective and theme
 
 ## Dependencies used
@@ -48,6 +48,7 @@ Final submitted code has been written by myself, with help from Visual Studio 20
 States are handled in `Game::update()` and `Game::render()`:
 
 - `START`
+- `SCORES`
 - `INSTRUCTIONS`
 - `PLAY`
 - `GAMEOVER`
@@ -92,9 +93,11 @@ States are handled in `Game::update()` and `Game::render()`:
 - When all enemies are dead: `roundInProgress = false` → round summary overlay is shown.
 - After a short timer: next round is started and more enemies are spawned and survivors refresh.
 
+### Scoring
+- +10 per kill
+- +50 per survivor saved
+- final score saved and compared to those in scores.txt, then top 5 scores kept
 
-
-## UML
 
 ## Sample screenshots
 Below are a few screenshots taken during gameplay.
@@ -117,6 +120,40 @@ Below are a few screenshots taken during gameplay.
 
 ## Exception handling
 
+
+### File I/O Validation
+Before reading or writing configuration and score data, files are checked for availability:
+```cpp
+std::ifstream configFile("config.txt");
+if (!configFile.is_open()) {
+    std::cerr << "Failed to open config.txt\n";
+    return;
+}
+```
+### Null-pointer pool safety
+Object pools validate before use:
+```cpp
+Enemy* enemy = enemyPool.getEnemy();
+if (enemy) {
+    enemy->init(enemyX, enemyY, enemyRunnerSpeed, enemyRunnerDamage, type);
+}
+```
+### State and input validation
+Inputs ar ehandled within a gated switch statement:
+```cpp
+switch (state)
+{
+case GameState::START:
+    // Press SPACE to go to instructions, H to go to scores
+    if (keys[SDL_SCANCODE_SPACE])
+        state = GameState::INSTRUCTIONS;
+	else if (keys[SDL_SCANCODE_H])
+		state = GameState::SCORES;
+    return;
+  ...
+}
+```
+
 ## Further details
 
 - Rendering is deliberately simple (rects and colours) to make logic visible.
@@ -126,6 +163,7 @@ Below are a few screenshots taken during gameplay.
   - runner → green
   - shooter → blue
 - Grid is rendered behind gameplay for spatial reference.
+- High scores are read from and written to `scores.txt` 
 - Config file ends with a `-- Notes for reader --` stop marker so comments don’t break parsing.
 
 
@@ -138,6 +176,7 @@ I have demonstrated OOP principles, Object pooling principles and the use of cla
 - OOP structure - Using encapsulated classes for `Game`, `Player`, `Enemy`, `Survivor` etc and respective object pools
 - Object pooling for efficient bullet, enemy and survivor resuse rather than creation/destruction
 - Reading from a config file, handling game variables for such as map size, enemy damage and player stats
+- Reading and writing to a high scores file, showing file IO skills
 - Escalating difficulty round system for challenging gameplay
 - A light narrative theme providing context and interest to the game
 
@@ -149,6 +188,7 @@ Overall I managed to achieve a functional and replayable 2D bullet hell game in 
 - Add sound effects to enhance gameplay immersion
 - Create assets for game objects like player, enemies and survivors
 - Expand config input to handle more complex operations
+- Improve score handling to save player names
 - Add pause functionality and in game settings
 
 Overall, the current version achieves its core design objectives, and future iterations would focus on gameplay depth rather than refactoring for code readability.
